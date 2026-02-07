@@ -3,400 +3,701 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>منصة كنوز | Kunuz Platform</title>
+    <title>Kunuz | Global Strategic Asset Network</title>
+    <!-- Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Lucide Icons -->
     <script src="https://unpkg.com/lucide@latest"></script>
+    <!-- Leaflet Maps -->
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
     <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Cairo:wght@300;400;600;700;900&family=Inter:wght@300;400;600;800&display=swap');
         
-        :root { --primary: #f59e0b; --bg-dark: #020617; }
+        :root { 
+            --primary: #f59e0b; 
+            --primary-dark: #d97706;
+            --bg-dark: #020617; 
+            --accent-blue: #3b82f6;
+            --accent-green: #22c55e;
+        }
         
-        body { font-family: 'Cairo', 'Inter', sans-serif; scroll-behavior: smooth; overflow-x: hidden; background-color: #f8fafc; }
+        body { 
+            font-family: 'Cairo', sans-serif; 
+            scroll-behavior: smooth; 
+            overflow-x: hidden; 
+            background-color: #f8fafc;
+            transition: background-color 0.5s ease;
+        }
+
         .lang-en { font-family: 'Inter', sans-serif; }
         
         .hidden { display: none !important; }
-        .active-section { display: block; animation: fadeIn 0.4s ease-out; }
-        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+        .active-section { display: block; animation: fadeIn 0.6s cubic-bezier(0.16, 1, 0.3, 1); }
         
-        .glass-card { background: rgba(255, 255, 255, 0.05); backdrop-filter: blur(12px); border: 1px solid rgba(255, 255, 255, 0.1); }
-        .admin-theme { background-color: var(--bg-dark); color: white; }
-        
-        /* Table & Card Responsiveness */
-        @media (max-width: 1024px) {
-            .responsive-table thead { display: none; }
-            .responsive-table tr { display: block; margin-bottom: 1.5rem; background: rgba(255,255,255,0.05); border-radius: 1.5rem; padding: 1.5rem; border: 1px solid rgba(255,255,255,0.1); }
-            .responsive-table td { display: flex; justify-content: space-between; align-items: center; padding: 0.75rem 0; border-bottom: 1px solid rgba(255,255,255,0.05); }
-            .responsive-table td:last-child { border: none; padding-top: 1rem; justify-content: center; }
-            .responsive-table td::before { content: attr(data-label); font-weight: 900; color: #64748b; font-size: 0.7rem; text-transform: uppercase; }
+        @keyframes fadeIn { 
+            from { opacity: 0; transform: translateY(20px); } 
+            to { opacity: 1; transform: translateY(0); } 
         }
 
-        #notification { position: fixed; bottom: 20px; left: 50%; transform: translateX(-50%) translateY(120px); transition: 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275); z-index: 10000; }
+        /* Glassmorphism Classes */
+        .glass-card { 
+            background: rgba(255, 255, 255, 0.05); 
+            backdrop-filter: blur(15px); 
+            border: 1px solid rgba(255, 255, 255, 0.1); 
+        }
+        
+        .admin-theme { background-color: var(--bg-dark); color: white; }
+        
+        /* Custom Scrollbar */
+        .custom-scrollbar::-webkit-scrollbar { width: 6px; height: 6px; }
+        .custom-scrollbar::-webkit-scrollbar-track { background: transparent; }
+        .custom-scrollbar::-webkit-scrollbar-thumb { background: var(--primary); border-radius: 10px; }
+        
+        /* Responsive Table to Card Hack */
+        @media (max-width: 1024px) {
+            .responsive-table thead { display: none; }
+            .responsive-table tr { 
+                display: block; 
+                margin-bottom: 2rem; 
+                background: rgba(255,255,255,0.03); 
+                border-radius: 2rem; 
+                padding: 1.5rem; 
+                border: 1px solid rgba(255,255,255,0.08); 
+                box-shadow: 0 10px 15px -3px rgba(0,0,0,0.1);
+            }
+            .responsive-table td { 
+                display: flex; 
+                justify-content: space-between; 
+                align-items: center; 
+                padding: 1rem 0; 
+                border-bottom: 1px solid rgba(255,255,255,0.05); 
+            }
+            .responsive-table td:last-child { border: none; padding-top: 1.5rem; justify-content: center; }
+            .responsive-table td::before { 
+                content: attr(data-label); 
+                font-weight: 900; 
+                color: #94a3b8; 
+                font-size: 0.75rem; 
+                text-transform: uppercase; 
+                margin-left: 1rem;
+            }
+        }
+
+        /* UI Animations */
+        .hover-lift { transition: transform 0.3s ease, box-shadow 0.3s ease; }
+        .hover-lift:hover { transform: translateY(-5px); box-shadow: 0 20px 25px -5px rgba(0,0,0,0.1); }
+        
+        #notification { 
+            position: fixed; 
+            bottom: 30px; 
+            left: 50%; 
+            transform: translateX(-50%) translateY(150px); 
+            transition: 0.6s cubic-bezier(0.19, 1, 0.22, 1); 
+            z-index: 10000; 
+        }
         #notification.show { transform: translateX(-50%) translateY(0); }
         
-        .progress-ring { transition: stroke-dashoffset 0.5s ease; transform: rotate(-90deg); transform-origin: 50% 50%; }
-        #project-map { height: 450px; width: 100%; border-radius: 2rem; z-index: 1; }
+        .progress-ring { transition: stroke-dashoffset 0.8s ease; transform: rotate(-90deg); transform-origin: 50% 50%; }
+        
+        #project-map { height: 450px; width: 100%; border-radius: 2.5rem; z-index: 10; border: 4px solid rgba(255,255,255,0.05); }
+
+        /* Chat Bubbles */
+        .chat-sent { background: var(--primary); color: #000; border-radius: 1.5rem 1.5rem 0 1.5rem; }
+        .chat-received { background: #fff; color: #000; border-radius: 1.5rem 1.5rem 1.5rem 0; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.1); }
+
+        /* RTL/LTR Logic helpers */
+        .rtl-flip { transform: scaleX(-1); }
+        [dir="ltr"] .rtl-flip { transform: scaleX(1); }
     </style>
 </head>
-<body class="text-slate-900 bg-slate-50 transition-all duration-300">
+<body class="text-slate-900 bg-slate-50 transition-colors duration-500">
 
-    <!-- Loading Screen -->
-    <div id="loading-screen" class="fixed inset-0 bg-slate-950 z-[11000] hidden flex flex-col items-center justify-center">
-        <div class="w-12 h-12 border-4 border-amber-500 border-t-transparent rounded-full animate-spin mb-4"></div>
-        <p class="text-white font-black italic tracking-widest" id="loading-text">Kunuz Engine...</p>
+    <!-- GLOBAL LOADING OVERLAY -->
+    <div id="loading-screen" class="fixed inset-0 bg-slate-950 z-[11000] hidden flex flex-col items-center justify-center backdrop-blur-3xl">
+        <div class="relative w-24 h-24 mb-8">
+            <div class="absolute inset-0 border-4 border-amber-500/20 rounded-full"></div>
+            <div class="absolute inset-0 border-4 border-amber-500 border-t-transparent rounded-full animate-spin"></div>
+            <div class="absolute inset-4 bg-amber-500 rounded-xl animate-pulse flex items-center justify-center font-black text-slate-950 italic">K</div>
+        </div>
+        <p class="text-white font-black text-xl italic tracking-[0.3em] uppercase" id="loading-text">Kunuz System Loading...</p>
     </div>
 
-    <!-- Notification -->
-    <div id="notification" class="bg-slate-950 text-white px-8 py-5 rounded-3xl shadow-2xl border border-white/10 flex items-center gap-4 min-w-[320px]">
-        <div class="w-10 h-10 bg-amber-500 rounded-2xl flex items-center justify-center text-slate-950 shadow-lg"><i data-lucide="bell" class="w-5 h-5"></i></div>
-        <div><p id="notification-text" class="text-xs font-black italic"></p></div>
+    <!-- NOTIFICATION ENGINE -->
+    <div id="notification" class="bg-slate-950/90 text-white px-10 py-6 rounded-[2.5rem] shadow-3xl border border-white/10 flex items-center gap-6 min-w-[350px] backdrop-blur-xl">
+        <div class="w-14 h-14 bg-amber-500 rounded-3xl flex items-center justify-center text-slate-950 shadow-2xl shadow-amber-500/20">
+            <i data-lucide="shield-check" class="w-7 h-7"></i>
+        </div>
+        <div>
+            <p id="notification-text" class="text-sm font-black italic uppercase tracking-tighter"></p>
+            <p class="text-[8px] text-slate-500 font-bold uppercase mt-1 tracking-widest">Kunuz Security Protocol Active</p>
+        </div>
     </div>
 
-    <!-- Nav Bar -->
-    <nav class="fixed top-0 w-full z-[1000] bg-white/90 backdrop-blur-xl border-b border-slate-100 px-4 lg:px-12 py-4 flex justify-between items-center shadow-sm">
-        <div class="flex items-center gap-3 cursor-pointer" onclick="showPage('landing')">
-            <div class="w-10 h-10 bg-amber-500 rounded-xl flex items-center justify-center text-slate-950 font-black text-xl">K</div>
-            <div class="hidden xs:block leading-none">
-                <span class="text-xl font-black text-slate-950 block tracking-tighter uppercase">Kunuz <span class="text-amber-600 italic">Enterprise</span></span>
-                <span class="text-[8px] text-slate-400 font-bold uppercase tracking-widest" data-i18n="nav-subtitle">Global Asset Intelligence</span>
+    <!-- NAVIGATION ARCHITECTURE -->
+    <nav class="fixed top-0 w-full z-[1000] bg-white/80 backdrop-blur-2xl border-b border-slate-100 px-6 lg:px-16 py-5 flex justify-between items-center shadow-lg transition-all duration-300" id="main-nav">
+        <div class="flex items-center gap-4 cursor-pointer group" onclick="showPage('landing')">
+            <div class="w-12 h-12 bg-amber-500 rounded-2xl flex items-center justify-center text-slate-950 font-black text-2xl shadow-xl group-hover:rotate-12 transition-transform">K</div>
+            <div class="hidden sm:block leading-none">
+                <span class="text-2xl font-black text-slate-950 block tracking-tighter uppercase italic">Kunuz <span class="text-amber-600">Enterprise</span></span>
+                <span class="text-[9px] text-slate-400 font-black uppercase tracking-[0.4em] mt-1 italic" data-i18n="nav-subtitle">Massive Asset Intelligence</span>
             </div>
         </div>
         
-        <div class="hidden lg:flex items-center gap-8 text-slate-600 font-black text-[10px] uppercase tracking-widest">
-            <button onclick="showPage('landing')" data-i18n="nav-home">الرئيسية</button>
-            <button onclick="showPage('ent-dash')" data-i18n="nav-founder">الرائد</button>
-            <button id="nav-inv-btn" onclick="showPage('inv-dash')" class="hidden text-green-600" data-i18n="nav-investor">المستثمر</button>
-            <button id="nav-adm-btn" onclick="showPage('dashboard')" class="hidden text-blue-600" data-i18n="nav-bi">Strategy BI</button>
-            <button id="nav-msg-btn" onclick="showPage('messages')" class="hidden text-slate-400" data-i18n="nav-msg">الرسائل</button>
+        <!-- Desktop Nav Items -->
+        <div class="hidden lg:flex items-center gap-10 text-slate-600 font-black text-[11px] uppercase tracking-[0.2em] italic">
+            <button onclick="showPage('landing')" class="hover:text-amber-500 transition-colors" data-i18n="nav-home">الرئيسية</button>
+            <button onclick="showPage('ent-dash')" class="hover:text-amber-500 transition-colors flex items-center gap-2"><i data-lucide="rocket" class="w-3 h-3"></i> <span data-i18n="nav-founder">الرائد</span></button>
+            <button id="nav-inv-btn" onclick="showPage('inv-dash')" class="hidden text-green-600 items-center gap-2"><i data-lucide="trending-up" class="w-3 h-3"></i> <span data-i18n="nav-investor">المستثمر</span></button>
+            <button id="nav-adm-btn" onclick="showPage('dashboard')" class="hidden text-blue-600 items-center gap-2"><i data-lucide="bar-chart-3" class="w-3 h-3"></i> <span data-i18n="nav-bi">Strategy BI</span></button>
+            <button id="nav-msg-btn" onclick="showPage('messages')" class="hidden text-slate-400 items-center gap-2"><i data-lucide="mail" class="w-3 h-3"></i> <span data-i18n="nav-msg">الرسائل</span></button>
         </div>
 
-        <div class="flex items-center gap-3">
-            <!-- Language Toggle -->
-            <button onclick="toggleLanguage()" class="bg-slate-100 px-3 py-1.5 rounded-xl text-[10px] font-black border flex items-center gap-2 hover:bg-slate-200 transition-all">
-                <i data-lucide="languages" class="w-3 h-3"></i>
-                <span id="lang-label">EN</span>
+        <div class="flex items-center gap-5">
+            <!-- Language Switcher -->
+            <button onclick="toggleLanguage()" class="bg-slate-100 hover:bg-slate-200 px-4 py-2 rounded-2xl text-[10px] font-black border flex items-center gap-3 transition-all shadow-sm">
+                <i data-lucide="languages" class="w-4 h-4 text-amber-600"></i>
+                <span id="lang-label" class="uppercase">EN</span>
             </button>
 
-            <div id="role-switcher" class="bg-slate-100 p-1 rounded-full flex gap-1 border">
-                <button onclick="setRole('user')" id="role-user-btn" class="px-3 md:px-5 py-1.5 rounded-full text-[9px] font-black transition-all bg-white shadow-sm text-slate-900 border">User</button>
-                <button onclick="setRole('investor')" id="role-inv-btn" class="px-3 md:px-5 py-1.5 rounded-full text-[9px] font-black transition-all text-slate-400">Inv</button>
-                <button onclick="setRole('admin')" id="role-adm-btn" class="px-3 md:px-5 py-1.5 rounded-full text-[9px] font-black transition-all text-slate-400">Admin</button>
+            <!-- Role Selector -->
+            <div id="role-switcher" class="bg-slate-100 p-1.5 rounded-full flex gap-1 border shadow-inner">
+                <button onclick="setRole('user')" id="role-user-btn" class="px-5 py-2 rounded-full text-[9px] font-black transition-all bg-white shadow-md text-slate-900 border" data-i18n="role-user">User</button>
+                <button onclick="setRole('investor')" id="role-inv-btn" class="px-5 py-2 rounded-full text-[9px] font-black transition-all text-slate-400" data-i18n="role-inv">Inv</button>
+                <button onclick="setRole('admin')" id="role-adm-btn" class="px-5 py-2 rounded-full text-[9px] font-black transition-all text-slate-400" data-i18n="role-adm">Admin</button>
             </div>
-            <button class="lg:hidden p-2 bg-slate-100 rounded-xl" onclick="toggleMobileMenu()"><i data-lucide="menu" class="w-5 h-5"></i></button>
+            
+            <button class="lg:hidden p-3 bg-slate-100 rounded-2xl text-slate-950" onclick="toggleMobileMenu()"><i data-lucide="menu" class="w-6 h-6"></i></button>
         </div>
     </nav>
 
-    <!-- Mobile Menu Overlay -->
-    <div id="mobile-menu" class="fixed inset-0 bg-slate-950/98 z-[1500] hidden flex-col items-center justify-center text-white gap-8 font-black text-xl italic uppercase">
-        <button onclick="toggleMobileMenu()" class="absolute top-6 right-6 p-4"><i data-lucide="x" class="w-8 h-8"></i></button>
+    <!-- MOBILE MENU OVERLAY -->
+    <div id="mobile-menu" class="fixed inset-0 bg-slate-950/98 z-[1500] hidden flex-col items-center justify-center text-white gap-10 font-black text-2xl italic uppercase tracking-tighter backdrop-blur-3xl">
+        <button onclick="toggleMobileMenu()" class="absolute top-10 right-10 p-4 bg-white/10 rounded-full"><i data-lucide="x" class="w-10 h-10"></i></button>
         <button onclick="showPage('landing'); toggleMobileMenu()" data-i18n="nav-home">الرئيسية</button>
-        <button onclick="showPage('ent-dash'); toggleMobileMenu()" data-i18n="nav-founder">الرائد</button>
-        <button id="mob-inv-btn" class="hidden text-green-500" onclick="showPage('inv-dash'); toggleMobileMenu()" data-i18n="nav-investor">المستثمر</button>
-        <button id="mob-adm-btn" class="hidden text-blue-500" onclick="showPage('dashboard'); toggleMobileMenu()" data-i18n="nav-bi">Strategy BI</button>
+        <button onclick="showPage('ent-dash'); toggleMobileMenu()" data-i18n="nav-founder">لوحة الرائد</button>
+        <button id="mob-inv-btn" class="hidden text-green-500" onclick="showPage('inv-dash'); toggleMobileMenu()" data-i18n="nav-investor">لوحة المستثمر</button>
+        <button id="mob-adm-btn" class="hidden text-blue-500" onclick="showPage('dashboard'); toggleMobileMenu()" data-i18n="nav-bi">Strategy BI Terminal</button>
+        <div class="mt-10 pt-10 border-t border-white/10 w-48 text-center">
+            <button onclick="toggleLanguage(); toggleMobileMenu()" class="text-amber-500 text-sm italic">Switch Language</button>
+        </div>
     </div>
 
-    <main class="mt-[85px]">
-        <!-- PAGE: LANDING -->
+    <!-- MAIN PAGE CONTAINER -->
+    <main class="mt-[92px]">
+        
+        <!-- ============================================= -->
+        <!-- SECTION: LANDING PAGE                         -->
+        <!-- ============================================= -->
         <section id="landing-page" class="page-section active-section">
-            <div class="relative py-24 lg:py-48 px-6 bg-slate-950 text-white min-h-[90vh] flex items-center overflow-hidden">
-                <div class="container mx-auto grid lg:grid-cols-2 gap-16 items-center relative z-10">
-                    <div class="text-right rtl:text-right ltr:text-left">
-                        <span class="inline-block px-4 py-1 rounded-full bg-amber-500/10 border border-amber-500/20 text-amber-500 text-[10px] font-black uppercase mb-6 italic tracking-widest" data-i18n="hero-badge">Intelligent Acquisition Ecosystem</span>
-                        <h1 class="text-5xl lg:text-8xl font-black mb-8 leading-[0.85] tracking-tighter italic" data-i18n="hero-title">أصولك <br><span class="text-amber-500">استراتيجية</span> رقمية</h1>
-                        <p class="text-slate-400 text-lg mb-12 max-w-lg font-light leading-relaxed" data-i18n="hero-desc">منصة "كنوز" تدمج تحليل البيانات الضخمة (Strategy BI) مع مصفوفة التشخيص لربط المشاريع العملاقة بكبار المستثمرين.</p>
-                        <div class="flex flex-wrap gap-4 justify-start">
-                            <button onclick="showPage('form')" class="bg-amber-500 text-slate-950 px-10 py-5 rounded-2xl font-black shadow-2xl hover:scale-105 transition-all text-xs italic uppercase" data-i18n="btn-start">ابدأ رحلة التمويل</button>
-                            <button onclick="setRole('admin')" class="bg-white/5 border border-white/10 px-8 py-5 rounded-2xl font-bold backdrop-blur-md text-xs italic uppercase" data-i18n="btn-bi">استعرض Strategy BI</button>
+            <div class="relative py-24 lg:py-48 px-8 bg-slate-950 text-white min-h-[95vh] flex items-center overflow-hidden">
+                <!-- Background Decorations -->
+                <div class="absolute top-0 left-0 w-full h-full opacity-20 pointer-events-none">
+                    <div class="absolute top-[-10%] right-[-10%] w-[500px] h-[500px] bg-amber-500/20 blur-[150px] rounded-full"></div>
+                    <div class="absolute bottom-[-10%] left-[-10%] w-[500px] h-[500px] bg-blue-500/20 blur-[150px] rounded-full"></div>
+                </div>
+
+                <div class="container mx-auto grid lg:grid-cols-2 gap-20 items-center relative z-10">
+                    <div class="text-right rtl:text-right ltr:text-left space-y-10">
+                        <span class="inline-block px-6 py-2 rounded-full bg-amber-500/10 border border-amber-500/20 text-amber-500 text-[11px] font-black uppercase tracking-[0.5em] italic" data-i18n="hero-badge">Sovereign Acquisition Ecosystem</span>
+                        <h1 class="text-6xl lg:text-[7rem] font-black mb-10 leading-[0.8] tracking-tighter italic" data-i18n="hero-title">
+                            أصولك <br><span class="text-amber-500">استراتيجية</span> رقمية
+                        </h1>
+                        <p class="text-slate-400 text-xl lg:text-2xl mb-16 max-w-2xl font-light leading-relaxed" data-i18n="hero-desc">
+                            منصة "كنوز" تدمج تحليلات البيانات الضخمة الاستراتيجية (Strategy BI) مع مصفوفة التشخيص العالمية لربط الأصول العملاقة بكبار المستثمرين السياديين.
+                        </p>
+                        <div class="flex flex-wrap gap-6 justify-start ltr:justify-start rtl:justify-start">
+                            <button onclick="showPage('form')" class="bg-amber-500 text-slate-950 px-16 py-7 rounded-3xl font-black shadow-3xl shadow-amber-500/30 hover:scale-105 transition-all text-sm uppercase italic tracking-tighter" data-i18n="btn-start">ابدأ رحلة التمويل</button>
+                            <button onclick="setRole('admin')" class="bg-white/5 border border-white/10 px-12 py-7 rounded-3xl font-bold backdrop-blur-2xl hover:bg-white/10 transition-all text-sm italic uppercase" data-i18n="btn-bi">استعرض Strategy BI</button>
                         </div>
                     </div>
-                    <div class="hidden lg:block">
-                        <div class="glass-card rounded-[4rem] p-12 border border-white/10 shadow-2xl">
-                            <h3 class="text-amber-500 font-black text-[10px] uppercase tracking-widest mb-10 italic">Live BI Monitor</h3>
-                            <div class="space-y-10">
-                                <div class="flex justify-between items-end"><p class="text-slate-500 text-[10px] font-black uppercase">Investor Match-Rate</p><p class="text-4xl font-black tracking-tighter">96.4%</p></div>
-                                <div class="h-1.5 w-full bg-white/5 rounded-full overflow-hidden"><div class="h-full bg-amber-500 w-[96%] animate-pulse"></div></div>
-                                <div class="flex justify-between items-end"><p class="text-slate-500 text-[10px] font-black uppercase">Managed Asset Flow</p><p class="text-4xl font-black tracking-tighter text-blue-400 italic">+$1.4B</p></div>
-                                <div class="h-1.5 w-full bg-white/5 rounded-full overflow-hidden"><div class="h-full bg-blue-500 w-[82%]"></div></div>
+                    <div class="hidden lg:block relative">
+                        <div class="glass-card rounded-[5rem] p-16 border border-white/10 shadow-3xl relative overflow-hidden group">
+                            <div class="absolute top-0 right-0 w-full h-1 bg-gradient-to-r from-transparent via-amber-500 to-transparent opacity-50"></div>
+                            <h3 class="text-amber-500 font-black text-[12px] uppercase tracking-[0.6em] mb-14 italic" data-i18n="hero-monitor">Live Intelligence Stream</h3>
+                            <div class="space-y-14">
+                                <div class="flex justify-between items-end"><p class="text-slate-500 text-[11px] font-black uppercase tracking-widest italic ltr:mr-4 rtl:ml-4">Investor Match-Rate</p><p class="text-6xl font-black tracking-tighter italic text-white">96.8%</p></div>
+                                <div class="h-2 w-full bg-white/5 rounded-full overflow-hidden"><div class="h-full bg-amber-500 w-[96%] animate-pulse shadow-[0_0_20px_rgba(245,158,11,0.5)]"></div></div>
+                                <div class="flex justify-between items-end"><p class="text-slate-500 text-[11px] font-black uppercase tracking-widest italic">Capital Deployed</p><p class="text-6xl font-black tracking-tighter text-blue-400 italic">+$2.1B</p></div>
+                                <div class="h-2 w-full bg-white/5 rounded-full overflow-hidden"><div class="h-full bg-blue-500 w-[84%]"></div></div>
                             </div>
+                        </div>
+                        <!-- Floating Badge -->
+                        <div class="absolute -bottom-10 -right-10 bg-white text-slate-950 p-10 rounded-[3rem] shadow-4xl flex items-center gap-6 animate-bounce ltr:left-auto rtl:right-auto">
+                            <div class="w-16 h-16 bg-amber-500 rounded-2xl flex items-center justify-center text-3xl font-black italic">!</div>
+                            <div><p class="text-[10px] font-black uppercase text-slate-400">System Alert</p><p class="text-lg font-black italic ltr:tracking-tighter">New M&A Deal</p></div>
                         </div>
                     </div>
                 </div>
             </div>
             
-            <div class="py-24 bg-white px-6">
+            <!-- SECTORS SECTION -->
+            <div class="py-32 bg-white px-8">
                 <div class="container mx-auto">
-                    <h2 class="text-4xl font-black text-slate-900 mb-20 tracking-tighter text-center italic" data-i18n="sect-title">القطاعات الاستراتيجية المشمولة</h2>
-                    <div id="sectors-ref-container" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8"></div>
+                    <div class="text-center mb-24 max-w-3xl mx-auto">
+                        <h2 class="text-5xl lg:text-6xl font-black text-slate-900 mb-8 tracking-tighter italic" data-i18n="sect-title">القطاعات الاستراتيجية المشمولة</h2>
+                        <p class="text-slate-400 font-bold uppercase text-[11px] tracking-[0.6em] italic" data-i18n="sect-subtitle">Comprehensive Global Asset Coverage</p>
+                    </div>
+                    <div id="sectors-ref-container" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-10">
+                        <!-- Generated via JS -->
+                    </div>
                 </div>
             </div>
         </section>
 
-        <!-- PAGE: ENTREPRENEUR DASHBOARD -->
-        <section id="ent-dash-page" class="page-section hidden py-16 px-6 text-right">
-            <div class="container mx-auto max-w-6xl">
-                <header class="mb-12 flex flex-col md:flex-row justify-between items-end gap-6">
+        <!-- ============================================= -->
+        <!-- SECTION: ENTREPRENEUR DASHBOARD               -->
+        <!-- ============================================= -->
+        <section id="ent-dash-page" class="page-section hidden py-24 px-8 text-right bg-slate-50 min-h-screen">
+            <div class="container mx-auto max-w-7xl">
+                <header class="mb-20 flex flex-col md:flex-row justify-between items-end gap-10">
                     <div>
-                        <h2 class="text-4xl font-black tracking-tighter italic uppercase tracking-widest">Growth <span class="text-amber-500">Center</span></h2>
-                        <p class="text-slate-400 text-[10px] font-black mt-2 italic" data-i18n="dash-subtitle">تتبع تقدم مشروعك ومواءمة المستثمرين</p>
+                        <h2 class="text-5xl font-black tracking-tighter italic uppercase tracking-widest leading-none">Founder <span class="text-amber-500">Portal</span></h2>
+                        <p class="text-slate-400 text-[11px] font-black mt-4 uppercase tracking-[0.4em] italic" data-i18n="dash-subtitle">تتبع تقدم مشروعك ومواءمة المستثمرين</p>
                     </div>
-                    <div class="bg-white px-6 py-3 rounded-2xl border shadow-sm text-xs font-black text-green-500 italic" data-i18n="status-review">جاري المراجعة الاستراتيجية</div>
+                    <div class="bg-white px-10 py-5 rounded-[2.5rem] border shadow-2xl flex items-center gap-6">
+                        <div class="w-4 h-4 bg-green-500 rounded-full animate-ping"></div>
+                        <span class="text-xs font-black text-slate-900 italic tracking-tighter uppercase" data-i18n="status-review">جاري المراجعة الاستراتيجية</span>
+                    </div>
                 </header>
 
-                <div class="grid grid-cols-1 lg:grid-cols-3 gap-8 mb-12">
-                    <div class="bg-white p-12 rounded-[3.5rem] shadow-xl border flex flex-col items-center justify-center text-center">
-                        <div class="relative w-48 h-48 mb-6">
+                <div class="grid grid-cols-1 lg:grid-cols-3 gap-12 mb-20">
+                    <!-- Progress Card -->
+                    <div class="bg-white p-16 rounded-[5rem] shadow-3xl border border-slate-100 flex flex-col items-center justify-center text-center hover-lift">
+                        <div class="relative w-64 h-64 mb-10">
                             <svg class="w-full h-full" viewBox="0 0 100 100">
-                                <circle class="text-slate-100" stroke-width="8" stroke="currentColor" fill="transparent" r="40" cx="50" cy="50" />
-                                <circle class="text-amber-500 progress-ring" id="ready-progress-ent" stroke-width="8" stroke-dasharray="251.2" stroke-dashoffset="60" stroke-linecap="round" stroke="currentColor" fill="transparent" r="40" cx="50" cy="50" />
+                                <circle class="text-slate-50" stroke-width="6" stroke="currentColor" fill="transparent" r="42" cx="50" cy="50" />
+                                <circle class="text-amber-500 progress-ring" id="ready-progress-ent" stroke-width="8" stroke-dasharray="263.8" stroke-dashoffset="65" stroke-linecap="round" stroke="currentColor" fill="transparent" r="42" cx="50" cy="50" />
                             </svg>
                             <div class="absolute inset-0 flex flex-col items-center justify-center">
-                                <span class="text-4xl font-black italic">76%</span>
-                                <span class="text-[8px] font-black text-slate-400 uppercase mt-1">Readiness</span>
+                                <span class="text-6xl font-black italic tracking-tighter">75%</span>
+                                <span class="text-[10px] font-black text-slate-400 uppercase mt-2 italic">Readiness Score</span>
                             </div>
                         </div>
-                        <h4 class="font-black text-slate-800 text-sm italic" data-i18n="mou-wait">بانتظار توقيع مذكرة التفاهم (MoU)</h4>
+                        <h4 class="font-black text-slate-900 text-2xl mb-4 italic" data-i18n="mou-wait">بانتظار توقيع مذكرة التفاهم (MoU)</h4>
+                        <p class="text-[10px] font-bold text-slate-400 uppercase tracking-widest italic">Phase 3: Due Diligence Analysis</p>
                     </div>
 
-                    <div class="lg:col-span-2 bg-white p-10 rounded-[3.5rem] shadow-xl border overflow-hidden">
-                        <div class="flex justify-between items-center mb-10">
-                            <h4 class="font-black text-lg italic tracking-tighter" data-i18n="chart-title">التدفقات المالية والنمو (Quarterly)</h4>
-                            <span class="text-[9px] font-black text-slate-400 uppercase italic">Real-time Metrics</span>
+                    <!-- Chart Card -->
+                    <div class="lg:col-span-2 bg-white p-16 rounded-[5rem] shadow-3xl border border-slate-100 overflow-hidden relative group">
+                        <div class="absolute top-0 right-0 w-3 h-full bg-amber-500/10"></div>
+                        <div class="flex justify-between items-center mb-16">
+                            <h4 class="font-black text-3xl italic tracking-tighter ltr:tracking-normal" data-i18n="chart-title">التدفقات المالية والنمو (Quarterly)</h4>
+                            <div class="flex items-center gap-4"><span class="w-3 h-3 bg-amber-500 rounded-full animate-pulse"></span><span class="text-[10px] font-black text-slate-400 uppercase italic">Live BI Sync</span></div>
                         </div>
-                        <div class="h-40 flex items-end gap-3 px-4" id="sales-flow-bars-ent">
-                            <div class="bg-slate-100 w-full rounded-t-xl h-[30%]"></div>
-                            <div class="bg-slate-100 w-full rounded-t-xl h-[45%]"></div>
-                            <div class="bg-amber-500 w-full rounded-t-xl h-[85%] shadow-lg shadow-amber-500/20 animate-pulse"></div>
-                            <div class="bg-slate-100 w-full rounded-t-xl h-[55%]"></div>
-                            <div class="bg-slate-100 w-full rounded-t-xl h-[75%]"></div>
+                        <div class="h-64 flex items-end gap-6 px-10" id="sales-flow-bars-ent">
+                            <div class="bg-slate-50 w-full rounded-t-3xl h-[40%] hover:bg-amber-100 transition-all cursor-help" title="Q1: $2.1M"></div>
+                            <div class="bg-slate-50 w-full rounded-t-3xl h-[60%] hover:bg-amber-100 transition-all" title="Q2: $3.4M"></div>
+                            <div class="bg-slate-50 w-full rounded-t-3xl h-[45%] hover:bg-amber-100 transition-all" title="Q3: $2.8M"></div>
+                            <div class="bg-amber-500 w-full rounded-t-3xl h-[95%] shadow-3xl shadow-amber-500/30 animate-pulse" title="Current: $5.2M"></div>
+                            <div class="bg-slate-50 w-full rounded-t-3xl h-[70%] hover:bg-amber-100 transition-all" title="Proj: $4.1M"></div>
+                            <div class="bg-slate-50 w-full rounded-t-3xl h-[85%] hover:bg-amber-100 transition-all" title="Proj: $4.9M"></div>
+                        </div>
+                        <div class="mt-12 flex justify-between px-10 text-[11px] font-black text-slate-400 uppercase italic tracking-[0.3em]">
+                            <span>Jan</span><span>Feb</span><span>Mar</span><span>Apr</span><span>May</span><span>Jun</span>
                         </div>
                     </div>
                 </div>
 
-                <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
-                    <div class="bg-slate-950 text-white p-10 rounded-[2.5rem] flex items-center gap-6 shadow-2xl">
-                        <div class="w-12 h-12 bg-amber-500 rounded-2xl flex items-center justify-center text-slate-950 shadow-lg"><i data-lucide="users"></i></div>
-                        <div><p class="text-[8px] text-slate-500 font-black uppercase mb-1" data-i18n="stats-investors">المستثمرون المهتمون</p><p class="text-2xl font-black italic">14</p></div>
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-10">
+                    <div class="bg-slate-950 text-white p-12 rounded-[4rem] flex items-center gap-10 shadow-4xl hover-lift">
+                        <div class="w-16 h-16 bg-amber-500 rounded-3xl flex items-center justify-center text-slate-950 shadow-2xl shadow-amber-500/20"><i data-lucide="users" class="w-8 h-8"></i></div>
+                        <div><p class="text-[10px] text-slate-500 font-black uppercase mb-1 italic" data-i18n="stats-investors">المستثمرون المهتمون</p><p class="text-4xl font-black italic tracking-tighter">18</p></div>
                     </div>
-                    <div class="bg-white p-10 rounded-[2.5rem] border flex items-center gap-6">
-                        <div class="w-12 h-12 bg-green-50 text-green-600 rounded-2xl flex items-center justify-center"><i data-lucide="target"></i></div>
-                        <div><p class="text-[8px] text-slate-400 font-black uppercase mb-1" data-i18n="stats-align">المواءمة الاستراتيجية</p><p class="text-2xl font-black italic">92%</p></div>
+                    <div class="bg-white p-12 rounded-[4rem] border border-slate-100 flex items-center gap-10 shadow-xl hover-lift">
+                        <div class="w-16 h-16 bg-green-50 text-green-600 rounded-3xl flex items-center justify-center"><i data-lucide="target" class="w-8 h-8"></i></div>
+                        <div><p class="text-[10px] text-slate-400 font-black uppercase mb-1 italic" data-i18n="stats-align">المواءمة الاستراتيجية</p><p class="text-4xl font-black italic tracking-tighter">94%</p></div>
                     </div>
-                    <div class="bg-white p-10 rounded-[2.5rem] border flex items-center gap-6">
-                        <div class="w-12 h-12 bg-blue-50 text-blue-600 rounded-2xl flex items-center justify-center"><i data-lucide="clock"></i></div>
-                        <div><p class="text-[8px] text-slate-400 font-black uppercase mb-1" data-i18n="stats-next">الموعد القادم</p><p class="text-2xl font-black italic tracking-tighter italic">MoU Review</p></div>
+                    <div class="bg-white p-12 rounded-[4rem] border border-slate-100 flex items-center gap-10 shadow-xl hover-lift">
+                        <div class="w-16 h-16 bg-blue-50 text-blue-600 rounded-3xl flex items-center justify-center"><i data-lucide="award" class="w-8 h-8"></i></div>
+                        <div><p class="text-[10px] text-slate-400 font-black uppercase mb-1 italic" data-i18n="stats-next">الموعد القادم</p><p class="text-3xl font-black italic tracking-tighter uppercase ltr:tracking-normal" data-i18n="stats-val">MoU Review</p></div>
                     </div>
                 </div>
             </div>
         </section>
 
-        <!-- PAGE: ADMIN STRATEGY BI -->
-        <section id="dashboard-page" class="page-section hidden min-h-screen admin-theme py-16 px-6 text-right">
+        <!-- ============================================= -->
+        <!-- SECTION: INVESTOR DASHBOARD                   -->
+        <!-- ============================================= -->
+        <section id="inv-dash-page" class="page-section hidden min-h-screen admin-theme py-24 px-8 text-right">
             <div class="container mx-auto">
-                <header class="flex flex-col md:flex-row justify-between items-start md:items-end mb-16 gap-8">
-                    <div>
-                        <h2 class="text-6xl font-black tracking-tighter italic uppercase text-blue-500 italic">Strategy <span class="text-white">BI</span></h2>
-                        <p class="text-slate-500 text-[10px] font-black mt-3 uppercase tracking-[0.4em] italic leading-loose" data-i18n="bi-subtitle">The Sovereign Intelligence & Massive Asset Control Center</p>
+                <header class="mb-24 flex flex-col lg:flex-row justify-between items-end gap-10">
+                    <div class="space-y-4">
+                        <h2 class="text-6xl font-black tracking-tighter uppercase italic tracking-widest text-green-500 italic">Investor <span class="text-white">Universe</span></h2>
+                        <p class="text-slate-500 text-[11px] font-black uppercase tracking-[0.6em] italic" data-i18n="inv-subtitle">Portfolio Management & Sovereign Wealth Flow</p>
                     </div>
-                    <div class="flex flex-wrap gap-4">
-                        <button onclick="window.print()" class="bg-white/5 border border-white/10 px-8 py-4 rounded-2xl text-[9px] font-black uppercase italic hover:bg-white/10 transition-all"><i data-lucide="file-down" class="inline w-3 h-3 ml-2"></i> BI Report</button>
-                        <button onclick="showPage('map')" class="bg-blue-600 px-10 py-4 rounded-2xl font-black text-xs shadow-xl italic tracking-tighter" data-i18n="btn-map">خارطة التدفقات</button>
+                    <div class="glass-card p-6 px-10 rounded-[3rem] border border-white/10 flex gap-16 text-[11px] font-black italic">
+                        <div class="text-right ltr:text-left"><span class="text-slate-500 block mb-1">Portfolio AUM</span><span class="text-green-400 text-3xl font-black tracking-tighter italic">$450.8M</span></div>
+                        <div class="border-r border-white/10 pr-16 text-right ltr:text-left ltr:border-l ltr:border-r-0 ltr:pl-16"><span class="text-slate-500 block mb-1">Watchlist Assets</span><span class="text-amber-400 text-3xl font-black tracking-tighter italic">14</span></div>
                     </div>
                 </header>
 
-                <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 mb-16">
-                    <div class="glass-card p-10 rounded-[3rem] border-t-2 border-t-blue-500">
-                        <p class="text-[9px] text-slate-500 font-black mb-2 uppercase italic" data-i18n="stat-active">الفرص النشطة</p>
-                        <h3 id="stat-total" class="text-5xl font-black italic tracking-tighter text-white">0</h3>
+                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-10 mb-20 text-right">
+                    <div class="glass-card p-14 rounded-[5rem] border-r-4 border-r-green-500 hover:bg-white/5 transition-all">
+                        <p class="text-[10px] text-slate-500 font-black mb-4 uppercase italic tracking-widest">AVG Annual ROI</p>
+                        <h3 class="text-6xl font-black text-green-400 italic tracking-tighter">32.8%</h3>
                     </div>
-                    <div class="glass-card p-10 rounded-[3rem] border-t-2 border-t-green-500">
-                        <p class="text-[9px] text-slate-500 font-black mb-2 uppercase italic" data-i18n="stat-target">السيولة المستهدفة</p>
-                        <h3 id="stat-total-funding" class="text-4xl font-black text-white">$0M</h3>
+                    <div class="glass-card p-14 rounded-[5rem] border-r-4 border-r-amber-500 hover:bg-white/5 transition-all">
+                        <p class="text-[10px] text-slate-500 font-black mb-4 uppercase italic tracking-widest">Live Pipe-flow</p>
+                        <h3 class="text-6xl font-black text-amber-500 italic tracking-tighter">14 Deals</h3>
                     </div>
-                    <div class="glass-card p-10 rounded-[3rem] border-t-2 border-t-amber-500">
-                        <p class="text-[9px] text-slate-500 font-black mb-2 uppercase italic" data-i18n="stat-profit">متوسط الربحية</p>
-                        <h3 id="stat-avg-profit" class="text-5xl font-black italic text-white tracking-tighter">0%</h3>
+                    <div class="glass-card p-14 rounded-[5rem] border-r-4 border-r-blue-500 hover:bg-white/5 transition-all">
+                        <p class="text-[10px] text-slate-500 font-black mb-4 uppercase italic tracking-widest">Global Reach</p>
+                        <h3 class="text-6xl font-black text-blue-400 italic tracking-tighter">8 Cities</h3>
                     </div>
-                    <div class="glass-card p-10 rounded-[3rem] border-t-2 border-t-purple-500">
-                        <p class="text-[9px] text-slate-500 font-black mb-2 uppercase italic" data-i18n="stat-team">كفاءة الفريق</p>
-                        <h3 id="stat-avg-team" class="text-5xl font-black italic text-white tracking-tighter">0/5</h3>
+                    <div class="glass-card p-14 rounded-[5rem] border-r-4 border-r-purple-500 hover:bg-white/5 transition-all">
+                        <p class="text-[10px] text-slate-500 font-black mb-4 uppercase italic tracking-widest">Match Score</p>
+                        <h3 class="text-6xl font-black text-purple-400 italic tracking-tighter">Prime</h3>
                     </div>
                 </div>
 
-                <div class="bg-white/5 p-8 lg:p-12 rounded-[4rem] border border-white/10 mb-12 backdrop-blur-xl">
-                    <div class="grid grid-cols-1 md:grid-cols-4 lg:grid-cols-6 gap-6 items-end text-right text-[10px] font-black italic">
-                        <div class="lg:col-span-2">
-                            <label class="text-slate-400 uppercase tracking-widest ml-2 mb-2 block" data-i18n="lbl-search">البحث الاستراتيجي العميق</label>
-                            <input type="text" id="filter-search" oninput="applyFilters()" placeholder="..." class="w-full bg-slate-900 border border-white/10 rounded-2xl px-6 py-4 outline-none focus:ring-1 focus:ring-amber-500 text-white font-bold">
+                <div class="bg-slate-900/40 rounded-[6rem] border border-white/5 p-16 shadow-4xl relative overflow-hidden">
+                    <div class="absolute -top-32 -left-32 w-80 h-80 bg-green-500/5 blur-[120px] rounded-full"></div>
+                    <h4 class="font-black text-3xl mb-16 italic tracking-tighter flex items-center gap-6 italic ltr:tracking-normal">
+                        <i data-lucide="sparkles" class="text-green-400 w-10 h-10"></i> الفرص المفلترة بالذكاء الاصطناعي (AI Matching)
+                    </h4>
+                    <div id="investor-match-list" class="space-y-10">
+                        <!-- Generated via JS -->
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- ============================================= -->
+        <!-- SECTION: ADMIN STRATEGY BI                    -->
+        <!-- ============================================= -->
+        <section id="dashboard-page" class="page-section hidden min-h-screen admin-theme py-24 px-8 text-right">
+            <div class="container mx-auto">
+                <header class="flex flex-col lg:flex-row justify-between items-start lg:items-end mb-24 gap-12">
+                    <div class="space-y-4">
+                        <h2 class="text-7xl font-black tracking-tighter italic uppercase text-blue-500 italic leading-none">Strategy <span class="text-white italic">BI</span></h2>
+                        <p class="text-slate-500 text-[11px] font-black mt-5 uppercase tracking-[0.6em] italic leading-loose" data-i18n="bi-subtitle">The Sovereign Intelligence & Massive Asset Control Terminal</p>
+                    </div>
+                    <div class="flex flex-wrap gap-6">
+                        <button onclick="window.print()" class="bg-white/5 border border-white/10 px-10 py-5 rounded-3xl text-[10px] font-black uppercase hover:bg-white/10 transition-all italic"><i data-lucide="printer" class="inline w-4 h-4 ltr:mr-3 rtl:ml-3"></i> Export Report</button>
+                        <button onclick="showPage('map')" class="bg-blue-600 px-16 py-5 rounded-3xl font-black text-xs shadow-3xl shadow-blue-600/30 hover:bg-blue-700 transition-all italic tracking-widest uppercase" data-i18n="btn-map">خارطة التدفقات</button>
+                    </div>
+                </header>
+
+                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-10 mb-20">
+                    <div class="glass-card p-12 rounded-[4rem] border-t-4 border-t-blue-500 relative overflow-hidden">
+                        <div class="absolute -right-5 -bottom-5 opacity-5 rotate-12"><i data-lucide="activity" class="w-32 h-32"></i></div>
+                        <p class="text-[10px] text-slate-500 font-black mb-4 uppercase italic tracking-widest" data-i18n="stat-active">الفرص النشطة</p>
+                        <h3 id="stat-total" class="text-6xl font-black italic tracking-tighter text-white">0</h3>
+                    </div>
+                    <div class="glass-card p-12 rounded-[4rem] border-t-4 border-t-green-500">
+                        <p class="text-[10px] text-slate-500 font-black mb-4 uppercase italic tracking-widest" data-i18n="stat-target">السيولة المستهدفة</p>
+                        <h3 id="stat-total-funding" class="text-5xl font-black text-white">$0M</h3>
+                    </div>
+                    <div class="glass-card p-12 rounded-[4rem] border-t-4 border-t-amber-500">
+                        <p class="text-[10px] text-slate-500 font-black mb-4 uppercase italic tracking-widest" data-i18n="stat-profit">متوسط الربحية</p>
+                        <h3 id="stat-avg-profit" class="text-6xl font-black italic tracking-tighter text-white">0%</h3>
+                    </div>
+                    <div class="glass-card p-12 rounded-[4rem] border-t-4 border-t-purple-500">
+                        <p class="text-[10px] text-slate-500 font-black mb-4 uppercase italic tracking-widest" data-i18n="stat-team">كفاءة الفريق</p>
+                        <h3 id="stat-avg-team" class="text-6xl font-black italic tracking-tighter text-white">0/5</h3>
+                    </div>
+                </div>
+
+                <!-- Strategic Filtering Engine -->
+                <div class="bg-white/5 p-12 rounded-[5rem] border border-white/10 mb-20 backdrop-blur-3xl shadow-4xl relative">
+                    <div class="absolute top-0 right-14 -translate-y-1/2 bg-blue-600 px-8 py-2 rounded-full text-[10px] font-black uppercase italic tracking-widest ltr:left-14 ltr:right-auto rtl:right-14 rtl:left-auto">Active Filter Engine</div>
+                    <div class="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-6 gap-8 items-end text-right text-[11px] font-black italic ltr:text-left ltr:italic">
+                        <div class="lg:col-span-2 space-y-3">
+                            <label class="text-slate-500 uppercase tracking-widest ltr:ml-3 rtl:mr-3" data-i18n="lbl-search">البحث الاستراتيجي العميق</label>
+                            <input type="text" id="filter-search" oninput="applyFilters()" placeholder="..." class="w-full bg-slate-900 border border-white/10 rounded-[2rem] px-8 py-5 outline-none focus:ring-2 focus:ring-amber-500 transition-all font-bold text-white">
                         </div>
-                        <div>
-                            <label class="text-slate-400 uppercase tracking-widest ml-2 mb-2 block" data-i18n="lbl-sector">القطاع</label>
-                            <select id="filter-sector" onchange="applyFilters()" class="w-full bg-slate-900 border border-white/10 rounded-2xl px-5 py-4 outline-none text-white font-bold"></select>
+                        <div class="space-y-3">
+                            <label class="text-slate-500 uppercase tracking-widest ltr:ml-3 rtl:mr-3" data-i18n="lbl-sector">القطاع</label>
+                            <select id="filter-sector" onchange="applyFilters()" class="w-full bg-slate-900 border border-white/10 rounded-[2rem] px-6 py-5 outline-none focus:ring-2 focus:ring-amber-500 text-white font-bold"></select>
                         </div>
-                        <div>
-                            <label class="text-slate-400 uppercase tracking-widest ml-2 mb-2 block" data-i18n="lbl-risk">المخاطرة</label>
-                            <select id="filter-risk" onchange="applyFilters()" class="w-full bg-slate-900 border border-white/10 rounded-2xl px-5 py-4 outline-none text-white font-bold">
+                        <div class="space-y-3">
+                            <label class="text-slate-500 uppercase tracking-widest ltr:ml-3 rtl:mr-3" data-i18n="lbl-risk">المخاطرة</label>
+                            <select id="filter-risk" onchange="applyFilters()" class="w-full bg-slate-900 border border-white/10 rounded-[2rem] px-6 py-5 outline-none focus:ring-2 focus:ring-amber-500 text-white font-bold">
                                 <option value="all">All</option>
                                 <option value="Low">Low Risk</option>
                                 <option value="Medium">Medium Risk</option>
                                 <option value="High">High Risk</option>
                             </select>
                         </div>
-                        <div class="md:col-span-2 lg:col-span-1">
-                            <label class="text-slate-400 uppercase tracking-widest ml-2 mb-2 block" data-i18n="lbl-profit">الربحية +%</label>
-                            <input type="number" id="filter-profit-val" oninput="applyFilters()" class="w-full bg-slate-900 border border-white/10 rounded-2xl px-5 py-4 outline-none text-white">
+                        <div class="space-y-3">
+                            <label class="text-slate-500 uppercase tracking-widest ltr:ml-3 rtl:mr-3" data-i18n="lbl-profit">الربحية +%</label>
+                            <input type="number" id="filter-profit-val" oninput="applyFilters()" class="w-full bg-slate-900 border border-white/10 rounded-[2rem] px-6 py-5 outline-none focus:ring-2 focus:ring-amber-500 text-white font-bold">
+                        </div>
+                        <div class="space-y-3">
+                            <label class="text-slate-500 uppercase tracking-widest ltr:ml-3 rtl:mr-3" data-i18n="lbl-fund">التمويل ($M)</label>
+                            <input type="number" id="filter-funding-val" oninput="applyFilters()" class="w-full bg-slate-900 border border-white/10 rounded-[2rem] px-6 py-5 outline-none focus:ring-2 focus:ring-amber-500 text-white font-bold">
                         </div>
                     </div>
                 </div>
 
-                <!-- Table Area -->
-                <div class="bg-slate-900 rounded-[4rem] border border-white/5 overflow-hidden shadow-2xl relative">
+                <!-- BI Terminal Table -->
+                <div class="bg-slate-900 rounded-[6rem] border border-white/5 overflow-hidden shadow-4xl relative">
                     <div class="overflow-x-auto custom-scrollbar">
-                        <table class="w-full text-right responsive-table">
-                            <thead class="bg-slate-950/80 text-slate-500 text-[9px] font-black uppercase tracking-[0.3em] italic">
+                        <table class="w-full text-right ltr:text-left responsive-table">
+                            <thead class="bg-slate-950/80 text-slate-500 text-[10px] font-black uppercase tracking-[0.4em] italic">
                                 <tr>
-                                    <th class="p-8" data-i18n="th-entity">الكيان الاستراتيجي</th>
-                                    <th class="p-8 text-center" data-i18n="th-profit">الربحية (%)</th>
-                                    <th class="p-8 text-center" data-i18n="th-fund">التمويل ($M)</th>
-                                    <th class="p-8 text-center" data-i18n="th-risk">المخاطرة</th>
-                                    <th class="p-8 text-center" data-i18n="th-status">الحالة</th>
-                                    <th class="p-8 text-center" data-i18n="th-action">إدارة القرار</th>
+                                    <th class="p-10" data-i18n="th-entity">الكيان الاستراتيجي</th>
+                                    <th class="p-10 text-center" data-i18n="th-profit">الربحية (%)</th>
+                                    <th class="p-10 text-center" data-i18n="th-fund">التمويل ($M)</th>
+                                    <th class="p-10 text-center" data-i18n="th-risk">المخاطرة</th>
+                                    <th class="p-10 text-center" data-i18n="th-status">الحالة</th>
+                                    <th class="p-10 text-center" data-i18n="th-action">إدارة القرار</th>
                                 </tr>
                             </thead>
-                            <tbody id="admin-table-body" class="divide-y divide-white/[0.03]"></tbody>
+                            <tbody id="admin-table-body" class="divide-y divide-white/[0.03]">
+                                <!-- Generated via JS -->
+                            </tbody>
                         </table>
                     </div>
                 </div>
             </div>
         </section>
 
-        <!-- PAGE: INVESTOR DASHBOARD -->
-        <section id="inv-dash-page" class="page-section hidden min-h-screen admin-theme py-16 px-6 text-right">
-            <div class="container mx-auto">
-                <header class="mb-16 flex flex-col lg:flex-row justify-between items-end gap-10">
-                    <div>
-                        <h2 class="text-5xl font-black tracking-tighter uppercase italic tracking-widest text-green-500 italic">Investor <span class="text-white">Universe</span></h2>
-                        <p class="text-slate-500 text-[10px] font-black uppercase mt-4 tracking-[0.3em] italic" data-i18n="inv-subtitle">Portfolio Management & Pipeline Control</p>
-                    </div>
+        <!-- ============================================= -->
+        <!-- SECTION: MESSAGES CENTER                      -->
+        <!-- ============================================= -->
+        <section id="messages-page" class="page-section hidden min-h-screen bg-slate-50 py-24 px-8 text-right">
+            <div class="container mx-auto max-w-7xl">
+                <header class="mb-16 flex justify-between items-center">
+                    <h2 class="text-5xl font-black italic tracking-tighter uppercase tracking-widest leading-none ltr:tracking-normal">Negotiation <span class="text-amber-500">Command</span></h2>
+                    <button onclick="showPage('dashboard')" class="text-slate-400 font-bold flex items-center gap-4 italic hover:text-slate-900 transition-all uppercase text-[10px] tracking-widest ltr:flex-row-reverse"><span data-i18n="nav-bi-back">Back to Terminal</span> <i data-lucide="arrow-left" class="w-5 h-5 rtl:flip ltr:flip-0"></i></button>
                 </header>
-                <div id="investor-match-list" class="space-y-6"></div>
+                <div class="grid grid-cols-1 lg:grid-cols-3 gap-10 bg-white rounded-[6rem] border shadow-4xl overflow-hidden min-h-[750px] relative">
+                    <!-- Chat Sidebar -->
+                    <div class="border-l bg-slate-50/50 p-14 space-y-8 overflow-y-auto custom-scrollbar rtl:border-l ltr:border-r ltr:border-l-0">
+                        <p class="text-[11px] font-black text-slate-400 uppercase tracking-[0.4em] mb-10 italic">غرف العمليات النشطة</p>
+                        <div id="chat-list" class="space-y-6">
+                            <!-- Generated via JS -->
+                        </div>
+                    </div>
+                    <!-- Chat Area -->
+                    <div class="lg:col-span-2 flex flex-col h-full bg-white relative">
+                        <div id="active-chat-header" class="p-14 border-b flex justify-between items-center shrink-0">
+                            <div class="flex items-center gap-6">
+                                <div class="w-16 h-16 bg-amber-500 rounded-3xl flex items-center justify-center font-black italic shadow-2xl text-slate-950 text-2xl">K</div>
+                                <div><p id="chat-target-name" class="text-xl font-black italic tracking-tighter ltr:tracking-normal" data-i18n="msg-prompt">حدد كيان لبدء التفاوض المباشر</p><p class="text-[10px] text-green-500 font-black italic uppercase mt-1 tracking-widest">• Online & Encrypted</p></div>
+                            </div>
+                        </div>
+                        <div id="chat-messages-container" class="grow p-14 overflow-y-auto space-y-12 custom-scrollbar bg-slate-50/30 flex flex-col justify-center items-center text-slate-300">
+                            <i data-lucide="mail-open" class="w-20 h-20 mb-6 opacity-20"></i>
+                            <p class="text-2xl font-black italic tracking-tighter opacity-50" data-i18n="msg-prompt">يرجى اختيار مشروع لبدء المفاوضة الاستراتيجية</p>
+                        </div>
+                        <div class="p-14 border-t flex gap-8 shrink-0 bg-white items-center">
+                            <input type="text" placeholder="اكتب عرضك المالي أو شروط الاستحواذ..." class="grow bg-slate-50 border border-slate-200 rounded-[2.5rem] px-10 py-6 text-sm font-bold outline-none focus:ring-2 focus:ring-amber-500 shadow-inner">
+                            <button class="bg-slate-950 text-white p-6 px-10 rounded-[2rem] shadow-3xl hover:scale-110 transition-all ltr:ml-auto rtl:mr-auto"><i data-lucide="send" class="w-6 h-6"></i></button>
+                        </div>
+                    </div>
+                </div>
             </div>
         </section>
 
-        <!-- PAGE: FORM -->
-        <section id="form-page" class="page-section hidden py-20 bg-slate-50 min-h-screen">
-            <div class="container mx-auto px-6 max-w-5xl">
-                <div class="flex justify-between mb-20 relative px-10">
+        <!-- ============================================= -->
+        <!-- SECTION: STRATEGIC FORM                       -->
+        <!-- ============================================= -->
+        <section id="form-page" class="page-section hidden py-24 bg-slate-50 min-h-screen">
+            <div class="container mx-auto px-8 max-w-6xl">
+                <!-- Advanced Stepper -->
+                <div class="flex justify-between mb-32 relative px-14">
                     <div class="absolute top-1/2 left-0 w-full h-1 bg-slate-200 -translate-y-1/2 z-0"></div>
-                    <div id="step-line" class="absolute top-1/2 left-0 w-0 h-1 bg-amber-500 -translate-y-1/2 z-0 transition-all duration-500"></div>
-                    <div class="relative z-10 flex flex-col items-center gap-2"><div class="step-dot w-12 h-12 rounded-full bg-amber-500 text-slate-950 flex items-center justify-center font-black ring-4 ring-white shadow-xl italic">1</div></div>
-                    <div class="relative z-10 flex flex-col items-center gap-2"><div class="step-dot w-12 h-12 rounded-full bg-slate-200 text-slate-400 flex items-center justify-center font-black ring-4 ring-white italic">2</div></div>
-                    <div class="relative z-10 flex flex-col items-center gap-2"><div class="step-dot w-12 h-12 rounded-full bg-slate-200 text-slate-400 flex items-center justify-center font-black ring-4 ring-white italic">3</div></div>
-                    <div class="relative z-10 flex flex-col items-center gap-2"><div class="step-dot w-12 h-12 rounded-full bg-slate-200 text-slate-400 flex items-center justify-center font-black ring-4 ring-white italic">4</div></div>
+                    <div id="step-line" class="absolute top-1/2 left-0 w-0 h-1 bg-amber-500 -translate-y-1/2 z-0 transition-all duration-700 ease-in-out ltr:left-0 rtl:right-0"></div>
+                    
+                    <div class="relative z-10 flex flex-col items-center gap-4"><div class="step-dot w-16 h-16 rounded-full bg-amber-500 text-slate-950 flex items-center justify-center font-black ring-8 ring-white shadow-2xl italic text-2xl">1</div><span class="text-[11px] font-black uppercase text-amber-600 italic tracking-widest" data-i18n="step1">ملف الكيان</span></div>
+                    <div class="relative z-10 flex flex-col items-center gap-4"><div class="step-dot w-16 h-16 rounded-full bg-slate-200 text-slate-400 flex items-center justify-center font-black ring-8 ring-white italic text-2xl">2</div><span class="text-[11px] font-black uppercase text-slate-400 italic tracking-widest" data-i18n="step2">المالية</span></div>
+                    <div class="relative z-10 flex flex-col items-center gap-4"><div class="step-dot w-16 h-16 rounded-full bg-slate-200 text-slate-400 flex items-center justify-center font-black ring-8 ring-white italic text-2xl">3</div><span class="text-[11px] font-black uppercase text-slate-400 italic tracking-widest" data-i18n="step3">الخطة</span></div>
+                    <div class="relative z-10 flex flex-col items-center gap-4"><div class="step-dot w-16 h-16 rounded-full bg-slate-200 text-slate-400 flex items-center justify-center font-black ring-8 ring-white italic text-2xl">4</div><span class="text-[11px] font-black uppercase text-slate-400 italic tracking-widest" data-i18n="step4">التشخيص</span></div>
                 </div>
 
-                <div id="form-step-1" class="active-step bg-white rounded-[4rem] p-12 lg:p-20 shadow-2xl border text-right">
-                    <h2 class="text-4xl font-black mb-10 tracking-tighter italic border-b pb-8 italic" data-i18n="step1-title">أولاً: الملف التعريفي والموقع</h2>
-                    <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
-                        <div class="space-y-2"><label class="text-[10px] font-black text-slate-500 uppercase italic tracking-widest" data-i18n="lbl-name">اسم المشروع</label><input type="text" id="f-name" class="w-full p-5 bg-slate-50 border rounded-2xl outline-none font-bold text-lg"></div>
-                        <div class="space-y-2"><label class="text-[10px] font-black text-slate-500 uppercase italic tracking-widest" data-i18n="lbl-sector">القطاع</label><select id="f-sector" class="w-full p-5 bg-slate-50 border rounded-2xl outline-none font-bold text-lg"></select></div>
+                <!-- Form Step 1 -->
+                <div id="form-step-1" class="active-step bg-white rounded-[6rem] p-20 shadow-4xl border text-right ltr:text-left relative overflow-hidden">
+                    <div class="absolute top-0 right-0 w-4 h-full bg-amber-500/10 rtl:right-0 ltr:left-0"></div>
+                    <h2 class="text-5xl font-black mb-16 tracking-tighter italic border-b pb-10 ltr:tracking-normal" data-i18n="step1-title">أولاً: الملف التعريفي والموقع الجيوسياسي</h2>
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-12">
+                        <div class="space-y-4"><label class="text-[11px] font-black text-slate-500 uppercase italic tracking-[0.4em]" data-i18n="lbl-name">اسم المشروع / الكيان</label><input type="text" id="f-name" class="w-full p-7 bg-slate-50 border border-slate-200 rounded-3xl outline-none font-bold text-xl focus:ring-2 focus:ring-amber-500 shadow-inner"></div>
+                        <div class="space-y-4"><label class="text-[11px] font-black text-slate-500 uppercase italic tracking-[0.4em]" data-i18n="lbl-sector">القطاع الاستراتيجي</label><select id="f-sector" class="w-full p-7 bg-slate-50 border border-slate-200 rounded-3xl outline-none font-bold text-xl focus:ring-2 focus:ring-amber-500"></select></div>
+                        <div class="space-y-4"><label class="text-[11px] font-black text-slate-500 uppercase italic tracking-[0.4em]" data-i18n="lbl-country">الدولة</label><input type="text" id="f-country" class="w-full p-7 bg-slate-50 border border-slate-200 rounded-3xl outline-none font-bold text-xl focus:ring-2 focus:ring-amber-500"></div>
+                        <div class="space-y-4"><label class="text-[11px] font-black text-slate-500 uppercase italic tracking-[0.4em]" data-i18n="lbl-city">المدينة</label><input type="text" id="f-city" class="w-full p-7 bg-slate-50 border border-slate-200 rounded-3xl outline-none font-bold text-xl focus:ring-2 focus:ring-amber-500"></div>
                     </div>
-                    <div class="flex justify-end mt-12"><button onclick="nextStep(2)" class="bg-slate-950 text-white px-12 py-5 rounded-2xl font-black shadow-2xl hover:scale-105 transition-all text-sm uppercase italic" data-i18n="btn-next">التالي</button></div>
+                    <div class="flex justify-end mt-24 ltr:justify-end rtl:justify-end"><button onclick="nextStep(2)" class="bg-slate-950 text-white px-20 py-7 rounded-3xl font-black shadow-4xl hover:scale-105 transition-all text-sm uppercase italic tracking-widest ltr:tracking-normal" data-i18n="btn-next">التالي: التحليل المالي</button></div>
                 </div>
-                <!-- ... additional steps are handled via JS ... -->
-                <div id="form-step-4" class="hidden bg-white rounded-[4rem] p-12 lg:p-20 shadow-2xl border text-right">
-                    <h2 class="text-4xl font-black mb-12 tracking-tighter text-center italic uppercase tracking-widest italic" data-i18n="diag-title">مصفوفة التشخيص الاستراتيجي النهائي</h2>
-                    <div id="diagnosis-questions-container" class="space-y-8 mb-12 text-right"></div>
-                    <div class="flex justify-between mt-12 border-t pt-10"><button onclick="submitDiagnostics()" class="bg-amber-500 text-slate-950 px-16 py-6 rounded-3xl font-black shadow-2xl hover:scale-105 transition-all italic text-xl tracking-tighter uppercase italic" data-i18n="btn-submit">إرسال المشروع للتحليل الذكي BI</button></div>
+
+                <!-- Form Step 2 (Simplified logic for now) -->
+                <div id="form-step-2" class="hidden bg-white rounded-[6rem] p-20 shadow-4xl border text-right ltr:text-left relative">
+                    <h2 class="text-5xl font-black mb-16 tracking-tighter italic border-b pb-10 ltr:tracking-normal">ثانياً: التحليل المالي وكفاءة الفريق</h2>
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-12">
+                        <div class="space-y-4"><label class="text-[11px] font-black text-slate-500 uppercase italic tracking-[0.4em]" data-i18n="lbl-profit">صافي الربح (%)</label><input type="number" id="f-profit" class="w-full p-7 bg-slate-50 border rounded-3xl outline-none font-bold text-xl"></div>
+                        <div class="space-y-4"><label class="text-[11px] font-black text-slate-500 uppercase italic tracking-[0.4em]" data-i18n="lbl-fund">التمويل المطلوب ($)</label><input type="number" id="f-fund" class="w-full p-7 bg-slate-50 border rounded-3xl outline-none font-bold text-xl"></div>
+                    </div>
+                    <div class="flex justify-between mt-24"><button onclick="nextStep(1)" class="text-slate-400 font-black px-10 italic uppercase text-[11px] tracking-widest">السابق</button><button onclick="nextStep(3)" class="bg-slate-950 text-white px-20 py-7 rounded-3xl font-black shadow-4xl" data-i18n="btn-next">التالي: خطة التنفيذ</button></div>
+                </div>
+
+                <!-- Form Step 4 (Diagnosis Matrix) -->
+                <div id="form-step-4" class="hidden bg-white rounded-[6rem] p-20 shadow-4xl border text-right ltr:text-left relative">
+                    <h2 class="text-5xl font-black mb-16 tracking-tighter text-center italic uppercase tracking-widest italic" data-i18n="diag-title">مصفوفة التشخيص الاستراتيجي النهائي (5/5)</h2>
+                    <div id="diagnosis-questions-container" class="space-y-12 mb-20">
+                        <!-- Generated via JS -->
+                    </div>
+                    <div class="flex justify-between items-center mt-24 border-t pt-16">
+                         <button onclick="nextStep(3)" class="text-slate-400 font-black px-10 italic uppercase text-[11px] tracking-widest">السابق</button>
+                         <button onclick="submitDiagnostics()" class="bg-amber-500 text-slate-950 px-24 py-8 rounded-[3rem] font-black shadow-4xl hover:scale-105 transition-all italic text-2xl tracking-tighter uppercase italic ltr:tracking-normal" data-i18n="btn-submit">إرسال للتحليل الذكي BI</button>
+                    </div>
                 </div>
             </div>
         </section>
 
-        <!-- PAGE: MESSAGES -->
-        <section id="messages-page" class="page-section hidden min-h-screen bg-slate-50 py-16 px-6 text-right">
-            <div class="container mx-auto max-w-6xl">
-                <header class="mb-12 flex justify-between items-center">
-                    <h2 class="text-3xl font-black italic tracking-tighter uppercase tracking-widest">Negotiation <span class="text-amber-500 italic">Command</span></h2>
+        <!-- ============================================= -->
+        <!-- SECTION: MAP VIEW                             -->
+        <!-- ============================================= -->
+        <section id="map-page" class="page-section hidden py-24 admin-theme text-white min-h-screen px-8">
+            <div class="container mx-auto text-center space-y-16">
+                <header>
+                    <h2 class="text-7xl font-black text-amber-500 tracking-tighter italic mb-6 uppercase tracking-widest">Geospatial Asset Map</h2>
+                    <p class="text-slate-500 font-bold uppercase text-[12px] tracking-[0.6em] italic" data-i18n="map-subtitle">نظام التتبع الجغرافي وحركة الأصول الاستراتيجية</p>
                 </header>
-                <div class="grid grid-cols-1 lg:grid-cols-3 gap-10 bg-white rounded-[4rem] border shadow-2xl overflow-hidden min-h-[700px]">
-                    <div class="border-l bg-slate-50/50 p-10 space-y-6 overflow-y-auto custom-scrollbar">
-                        <div id="chat-list" class="space-y-4"></div>
-                    </div>
-                    <div class="lg:col-span-2 flex flex-col h-full bg-white text-center italic font-bold text-slate-300 items-center justify-center p-12">
-                        <p data-i18n="msg-prompt">يرجى اختيار مشروع لبدء المفاوضة الاستراتيجية</p>
-                    </div>
-                </div>
+                <div id="project-map" class="shadow-4xl border border-white/5 relative z-10"></div>
             </div>
         </section>
 
-        <!-- PAGE: MAP -->
-        <section id="map-page" class="page-section hidden py-24 admin-theme text-white min-h-screen px-6">
-            <div class="container mx-auto text-center">
-                <h2 class="text-5xl font-black text-amber-500 tracking-tighter italic mb-4 uppercase italic tracking-widest">Geospatial Asset Map</h2>
-                <div id="project-map" class="shadow-2xl border border-white/10 mt-12 relative z-10"></div>
-            </div>
-        </section>
     </main>
 
-    <!-- PROJECT DETAIL MODAL -->
-    <div id="details-modal" class="fixed inset-0 bg-slate-950/98 z-[20000] hidden items-center justify-center p-4 lg:p-12 backdrop-blur-3xl overflow-y-auto">
-        <div class="bg-white rounded-[4rem] w-full max-w-6xl overflow-hidden shadow-2xl flex flex-col max-h-[92vh] text-right">
+    <!-- ============================================= -->
+    <!-- MODAL ARCHITECTURE: ASSET DOSSIER             -->
+    <!-- ============================================= -->
+    <div id="details-modal" class="fixed inset-0 bg-slate-950/98 z-[10000] hidden items-center justify-center p-8 lg:p-16 backdrop-blur-3xl overflow-y-auto">
+        <div class="bg-white rounded-[6rem] w-full max-w-7xl overflow-hidden shadow-4xl flex flex-col max-h-[95vh] text-right ltr:text-left">
+            
+            <!-- Modal View: Asset Portfolio -->
             <div id="modal-view-main" class="flex flex-col h-full">
-                <div class="p-10 bg-amber-500 flex justify-between items-center text-slate-950 shrink-0">
+                <div class="p-14 bg-amber-500 flex justify-between items-center text-slate-950 shrink-0">
                     <div>
-                        <span id="modal-status-badge" class="bg-slate-950 text-white text-[9px] px-3 py-1 rounded-full font-black uppercase mb-3 inline-block italic">Strategic Match</span>
-                        <h3 id="modal-title" class="text-4xl font-black tracking-tighter italic uppercase italic">Project Dossier</h3>
+                        <span id="modal-status-badge" class="bg-slate-950 text-white text-[10px] px-6 py-2 rounded-full font-black uppercase mb-4 inline-block italic tracking-widest">Strategic Asset Found</span>
+                        <h3 id="modal-title" class="text-5xl font-black tracking-tighter italic uppercase ltr:tracking-normal">Project Detailed Dossier</h3>
                     </div>
-                    <button onclick="closeModal()" class="w-16 h-16 bg-slate-950/10 rounded-[2.5rem] flex items-center justify-center hover:bg-slate-950/20 group transition-all"><i data-lucide="x" class="w-8 h-8 group-hover:rotate-90"></i></button>
+                    <button onclick="closeModal()" class="w-20 h-20 bg-slate-950/10 rounded-[3rem] flex items-center justify-center hover:bg-slate-950/20 group transition-all">
+                        <i data-lucide="x" class="w-10 h-10 group-hover:rotate-90"></i>
+                    </button>
                 </div>
-                <div class="overflow-y-auto p-10 lg:p-16 grow space-y-16 custom-scrollbar">
-                    <div class="grid grid-cols-1 lg:grid-cols-3 gap-12">
-                        <div class="lg:col-span-2 space-y-12">
-                            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6" id="modal-metrics-grid"></div>
-                            <div class="bg-slate-50 p-10 rounded-[3rem] border">
-                                <h4 class="font-black text-slate-900 text-xl italic flex items-center gap-4 mb-10"><i data-lucide="file-text"></i> Strategic Assets</h4>
-                                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                                    <div class="p-6 bg-white border rounded-3xl flex justify-between items-center cursor-pointer hover:border-amber-500 transition-all">
-                                        <div class="flex items-center gap-4"><i data-lucide="file-bar-chart"></i><p class="text-xs font-black">BI_Report.pdf</p></div>
-                                        <i data-lucide="download" class="w-4 h-4"></i>
+
+                <div class="overflow-y-auto p-16 grow space-y-20 custom-scrollbar">
+                    <div class="grid grid-cols-1 lg:grid-cols-3 gap-16">
+                        <!-- Left: Financial & Info -->
+                        <div class="lg:col-span-2 space-y-16">
+                            <div class="grid grid-cols-2 md:grid-cols-3 gap-10" id="modal-metrics-grid">
+                                <!-- Generated via JS -->
+                            </div>
+                            <!-- Documentation -->
+                            <div class="bg-slate-50 p-14 rounded-[4rem] border border-slate-100 shadow-inner">
+                                <h4 class="font-black text-slate-900 text-3xl italic flex items-center gap-6 mb-12"><i data-lucide="file-check" class="text-amber-500 w-10 h-10"></i> Due Diligence Documentation</h4>
+                                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                                    <div class="p-8 bg-white border rounded-[3rem] flex justify-between items-center cursor-pointer hover:border-amber-500 hover:shadow-2xl transition-all group">
+                                        <div class="flex items-center gap-6"><i data-lucide="file-bar-chart" class="text-blue-500 w-8 h-8"></i><p class="text-sm font-black italic uppercase">Asset_Valuation_2025.pdf</p></div>
+                                        <i data-lucide="download" class="w-6 h-6 text-slate-300 group-hover:text-amber-500"></i>
+                                    </div>
+                                    <div class="p-8 bg-white border rounded-[3rem] flex justify-between items-center cursor-pointer hover:border-amber-500 hover:shadow-2xl transition-all group">
+                                        <div class="flex items-center gap-6"><i data-lucide="shield-check" class="text-green-500 w-8 h-8"></i><p class="text-sm font-black italic uppercase">IP_Protection_Registry.pdf</p></div>
+                                        <i data-lucide="download" class="w-6 h-6 text-slate-300 group-hover:text-amber-500"></i>
                                     </div>
                                 </div>
                             </div>
                         </div>
-                        <div id="admin-actions-sidebar" class="hidden">
-                            <div class="bg-slate-950 text-white p-10 rounded-[3.5rem] border border-white/5 space-y-8 shadow-2xl">
-                                <h4 class="text-amber-500 font-black text-[10px] uppercase tracking-widest italic border-b border-white/10 pb-6 italic">Strategy BI Action</h4>
-                                <button onclick="showAcquisitionRoom()" class="w-full bg-amber-500 text-slate-950 py-6 rounded-[2.5rem] font-black shadow-2xl hover:scale-105 transition-all italic tracking-tighter text-lg uppercase italic">War Room <i data-lucide="zap"></i></button>
+
+                        <!-- Right: Decision Sidebar -->
+                        <div id="admin-actions-sidebar" class="hidden space-y-10">
+                            <div class="bg-slate-950 text-white p-14 rounded-[5rem] border border-white/5 space-y-12 shadow-4xl sticky top-0">
+                                <h4 class="text-amber-500 font-black text-xs uppercase tracking-[0.5em] italic border-b border-white/10 pb-8 italic">إجراءات الإدارة الاستراتيجية</h4>
+                                <div class="grid grid-cols-2 gap-6">
+                                    <button onclick="updateStatus('Pinned')" class="p-6 bg-white/5 border border-white/10 rounded-3xl hover:bg-amber-500 hover:text-slate-950 transition-all text-[11px] font-black uppercase italic">Pin <i data-lucide="pin" class="w-4 h-4 inline ml-2"></i></button>
+                                    <button onclick="updateStatus('Rejected')" class="p-6 bg-white/5 border border-red-500/30 rounded-3xl text-[11px] font-black uppercase text-red-500 hover:bg-red-500 hover:text-white transition-all italic">Reject <i data-lucide="x-circle" class="w-4 h-4 inline ml-2"></i></button>
+                                </div>
+                                <hr class="opacity-5">
+                                <button onclick="showAcquisitionRoom()" class="w-full bg-amber-500 text-slate-950 py-8 rounded-[3rem] font-black shadow-4xl hover:scale-105 transition-all italic tracking-tighter text-2xl uppercase italic ltr:tracking-normal">The Negotiation Room <i data-lucide="zap" class="inline w-7 h-7 ml-3"></i></button>
                             </div>
                         </div>
                     </div>
                 </div>
             </div>
-            <!-- War Room View (Hidden by default) -->
-            <div id="modal-view-acquisition" class="hidden flex flex-col h-full bg-slate-50">
-                 <div class="p-10 bg-slate-950 text-white flex justify-between items-center shrink-0">
-                    <div class="flex items-center gap-6"><button onclick="backToMainView()" class="w-12 h-12 bg-white/10 rounded-2xl flex items-center justify-center hover:bg-white/20 transition-all"><i data-lucide="chevron-right" class="w-6 h-6"></i></button><div><h3 class="text-4xl font-black tracking-tighter italic uppercase text-amber-500">Negotiation <span class="text-white">WAR ROOM</span></h3></div></div>
-                </div>
-                <div id="acq-path-selection" class="p-16 grow flex flex-col justify-center items-center gap-12 text-center">
-                    <div class="grid grid-cols-1 md:grid-cols-3 gap-8 w-full max-w-5xl">
-                        <div onclick="activatePath('Buyout')" class="p-12 bg-white rounded-[4rem] border cursor-pointer hover:border-amber-500 shadow-xl group transition-all"><h4 class="font-black text-xl italic uppercase">Acquisition</h4></div>
-                        <div onclick="activatePath('Partner')" class="p-12 bg-white rounded-[4rem] border cursor-pointer hover:border-amber-500 shadow-xl group transition-all"><h4 class="font-black text-xl italic uppercase">Partnership</h4></div>
-                        <div onclick="activatePath('Match')" class="p-12 bg-white rounded-[4rem] border cursor-pointer hover:border-amber-500 shadow-xl group transition-all"><h4 class="font-black text-xl italic uppercase">Matching</h4></div>
+
+            <!-- Modal View: War Room (Negotiation) -->
+            <div id="modal-view-acquisition" class="hidden flex flex-col h-full bg-slate-100">
+                <div class="p-14 bg-slate-950 text-white flex justify-between items-center shrink-0 shadow-3xl">
+                    <div class="flex items-center gap-10">
+                        <button onclick="backToMainView()" class="w-16 h-16 bg-white/10 rounded-3xl flex items-center justify-center hover:bg-white/20 transition-all"><i data-lucide="chevron-right" class="w-8 h-8 rtl-flip"></i></button>
+                        <div>
+                            <h3 class="text-5xl font-black tracking-tighter italic uppercase text-amber-500 italic ltr:tracking-normal">Asset <span class="text-white">War-Room</span></h3>
+                            <p class="text-slate-500 text-[11px] font-black uppercase mt-3 tracking-[0.3em] italic">Encrypted Negotiation Terminal V2.4</p>
+                        </div>
                     </div>
                 </div>
-                <div id="acq-active-room" class="hidden p-10 grow overflow-hidden flex flex-col lg:flex-row gap-8">
-                    <div class="grow bg-white rounded-[4rem] shadow-2xl flex flex-col border overflow-hidden">
-                        <div id="chat-messages-live" class="grow p-10 overflow-y-auto space-y-10 custom-scrollbar bg-slate-50/20 italic font-bold"></div>
-                        <div class="p-10 border-t flex gap-4"><input type="text" placeholder="..." class="grow bg-slate-50 border rounded-2xl px-6 py-4 outline-none font-bold text-sm"><button class="bg-slate-950 text-white px-8 py-4 rounded-2xl shadow-xl">Send</button></div>
+
+                <!-- Path Selector -->
+                <div id="acq-path-selection" class="p-20 grow flex flex-col justify-center items-center gap-20 overflow-y-auto">
+                    <h4 class="text-4xl font-black italic tracking-tighter" data-i18n="war-path-title">اختر مسار الاستحواذ الاستراتيجي</h4>
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-12 w-full max-w-6xl text-center">
+                        <div onclick="activatePath('Direct Buyout')" class="p-16 bg-white rounded-[5rem] border-4 border-transparent cursor-pointer hover:border-amber-500 shadow-4xl group transition-all duration-500">
+                            <div class="w-24 h-24 bg-blue-50 text-blue-600 rounded-[2.5rem] flex items-center justify-center mx-auto mb-10 group-hover:scale-125 transition-transform"><i data-lucide="landmark" class="w-12 h-12"></i></div>
+                            <h4 class="font-black text-2xl italic uppercase ltr:tracking-normal">الاستحواذ الكلي</h4>
+                            <p class="text-[10px] text-slate-400 mt-4 uppercase font-bold italic">100% Equity Purchase</p>
+                        </div>
+                        <div onclick="activatePath('Strategic Partnership')" class="p-16 bg-white rounded-[5rem] border-4 border-transparent cursor-pointer hover:border-amber-500 shadow-4xl group transition-all duration-500">
+                            <div class="w-24 h-24 bg-amber-50 text-amber-600 rounded-[2.5rem] flex items-center justify-center mx-auto mb-10 group-hover:scale-125 transition-transform"><i data-lucide="users" class="w-12 h-12"></i></div>
+                            <h4 class="font-black text-2xl italic uppercase ltr:tracking-normal">شراكة استراتيجية</h4>
+                            <p class="text-[10px] text-slate-400 mt-4 uppercase font-bold italic">Share Swap & Growth Partnership</p>
+                        </div>
+                        <div onclick="activatePath('Venture Matching')" class="p-16 bg-white rounded-[5rem] border-4 border-transparent cursor-pointer hover:border-amber-500 shadow-4xl group transition-all duration-500">
+                            <div class="w-24 h-24 bg-green-50 text-green-600 rounded-[2.5rem] flex items-center justify-center mx-auto mb-10 group-hover:scale-125 transition-transform"><i data-lucide="target" class="w-12 h-12"></i></div>
+                            <h4 class="font-black text-2xl italic uppercase ltr:tracking-normal">وساطة ومطابقة</h4>
+                            <p class="text-[10px] text-slate-400 mt-4 uppercase font-bold italic">Sovereign Wealth Matching</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Live War Room Chat -->
+                <div id="acq-active-room" class="hidden p-14 grow overflow-hidden flex flex-col lg:flex-row gap-12">
+                    <div class="lg:w-2/3 bg-white rounded-[5rem] shadow-4xl flex flex-col overflow-hidden border border-slate-200">
+                        <div class="p-10 bg-slate-50 border-b flex items-center justify-between shrink-0">
+                            <div class="flex items-center gap-6">
+                                <div class="w-16 h-16 bg-amber-500 rounded-3xl flex items-center justify-center font-black italic shadow-2xl text-slate-950 text-2xl">A</div>
+                                <div><p class="text-lg font-black italic ltr:tracking-normal">الطرف المستحوذ (Admin)</p><p class="text-[10px] text-green-500 font-black italic uppercase mt-1 tracking-widest">• Global Encryption Enabled</p></div>
+                            </div>
+                        </div>
+                        <div id="chat-messages-live" class="grow p-14 overflow-y-auto space-y-10 custom-scrollbar bg-slate-50/20 italic font-bold">
+                            <!-- Messages -->
+                        </div>
+                        <div class="p-12 border-t flex gap-8 bg-slate-50 items-center">
+                            <input type="text" placeholder="اكتب عرضك النهائي أو بنود الـ MoU..." class="grow bg-white border border-slate-200 rounded-[2.5rem] px-10 py-6 text-sm font-bold shadow-inner outline-none">
+                            <button class="bg-slate-950 text-white p-6 px-12 rounded-[2rem] shadow-3xl hover:scale-110 transition-all ltr:ml-auto"><i data-lucide="send" class="w-7 h-7 ltr:flip-0 rtl:flip"></i></button>
+                        </div>
+                    </div>
+                    <!-- Right Tools -->
+                    <div class="lg:w-1/3 space-y-10">
+                        <div class="bg-slate-950 text-white p-14 rounded-[5rem] shadow-4xl space-y-12 border border-white/5 relative">
+                            <h4 class="font-black text-amber-500 text-[12px] uppercase tracking-[0.5em] italic border-b border-white/10 pb-10 italic">War-Room Protocols</h4>
+                            <div class="space-y-6">
+                                <button onclick="simulateSend('Draft MoU')" class="w-full bg-white/5 p-6 rounded-3xl text-[10px] font-black flex justify-between items-center hover:bg-white/10 transition-all uppercase italic tracking-widest">إصدار مذكرة تفاهم (MoU) <i data-lucide="scroll"></i></button>
+                                <button onclick="simulateSend('Audit')" class="w-full bg-white/5 p-6 rounded-3xl text-[10px] font-black flex justify-between items-center hover:bg-white/10 transition-all uppercase italic tracking-widest">طلب التدقيق المالي <i data-lucide="search"></i></button>
+                                <button onclick="simulateSend('Contract')" class="w-full bg-white/5 p-6 rounded-3xl text-[10px] font-black flex justify-between items-center hover:bg-white/10 transition-all uppercase italic tracking-widest">إصدار العقد النهائي <i data-lucide="pen-tool"></i></button>
+                                <hr class="opacity-10 my-10">
+                                <button onclick="updateStatus('Acquired')" class="w-full bg-amber-500 text-slate-950 p-10 rounded-[3rem] font-black text-xs shadow-4xl italic tracking-tighter uppercase ltr:tracking-normal italic">إتمام الاستحواذ بنجاح ✅</button>
+                            </div>
+                        </div>
                     </div>
                 </div>
             </div>
         </div>
     </div>
 
+    <!-- ============================================= -->
+    <!-- CORE SYSTEM SCRIPT (JS)                       -->
+    <!-- ============================================= -->
     <script>
-        let map, markersGroup, projects = [], currentProjectId = null, userRole = 'user';
+        // ------------------------------------------------
+        // 1. GLOBAL STATE & TRANSLATIONS
+        // ------------------------------------------------
         let currentLang = 'ar';
+        let userRole = 'user';
+        let projects = [];
+        let currentProjectId = null;
+        let map, markersGroup;
 
         const i18n = {
             ar: {
@@ -406,12 +707,18 @@
                 'nav-investor': 'المستثمر',
                 'nav-bi': 'Strategy BI',
                 'nav-msg': 'الرسائل',
-                'hero-badge': 'نظام الاستحواذ الذكي',
+                'nav-bi-back': 'العودة للمنصة',
+                'role-user': 'رائد عمل',
+                'role-inv': 'مستثمر',
+                'role-adm': 'إدارة',
+                'hero-badge': 'نظام الاستحواذ السيادي العالمي',
                 'hero-title': 'أصولك <br><span class="text-amber-500">استراتيجية</span> رقمية',
-                'hero-desc': 'منصة "كنوز" تدمج تحليل البيانات الضخمة (Strategy BI) مع مصفوفة التشخيص لربط المشاريع العملاقة بكبار المستثمرين.',
+                'hero-desc': 'منصة "كنوز" تدمج تحليلات البيانات الضخمة الاستراتيجية (Strategy BI) مع مصفوفة التشخيص العالمية لربط الأصول العملاقة بكبار المستثمرين السياديين.',
                 'btn-start': 'ابدأ رحلة التمويل',
                 'btn-bi': 'استعرض Strategy BI',
+                'hero-monitor': 'بث البيانات الحية',
                 'sect-title': 'القطاعات الاستراتيجية المشمولة',
+                'sect-subtitle': 'تغطية شاملة للأصول العالمية',
                 'dash-subtitle': 'تتبع تقدم مشروعك ومواءمة المستثمرين',
                 'status-review': 'جاري المراجعة الاستراتيجية',
                 'mou-wait': 'بانتظار توقيع مذكرة التفاهم (MoU)',
@@ -419,16 +726,19 @@
                 'stats-investors': 'المستثمرون المهتمون',
                 'stats-align': 'المواءمة الاستراتيجية',
                 'stats-next': 'الموعد القادم',
-                'bi-subtitle': 'نظام السيادة الاستخباراتي والتحكم بالأصول الضخمة',
+                'stats-val': 'مراجعة الـ MoU',
+                'inv-subtitle': 'إدارة المحفظة وتدفقات الثروة السيادية',
+                'bi-subtitle': 'محطة الاستخبارات السيادية والتحكم في الأصول الضخمة',
                 'btn-map': 'خارطة التدفقات',
                 'stat-active': 'الفرص النشطة',
                 'stat-target': 'السيولة المستهدفة',
                 'stat-profit': 'متوسط الربحية',
                 'stat-team': 'كفاءة الفريق',
                 'lbl-search': 'البحث الاستراتيجي العميق',
-                'lbl-sector': 'القطاع',
-                'lbl-risk': 'المخاطرة',
-                'lbl-profit': 'الربحية +%',
+                'lbl-sector': 'القطاع الاستراتيجي',
+                'lbl-risk': 'درجة المخاطرة',
+                'lbl-profit': 'صافي الربحية +%',
+                'lbl-fund': 'حجم التمويل ($M)',
                 'th-entity': 'الكيان الاستراتيجي',
                 'th-profit': 'الربحية (%)',
                 'th-fund': 'التمويل ($M)',
@@ -436,81 +746,178 @@
                 'th-status': 'الحالة',
                 'th-action': 'إدارة القرار',
                 'msg-prompt': 'يرجى اختيار مشروع لبدء المفاوضة الاستراتيجية',
-                'step1-title': 'أولاً: الملف التعريفي والموقع',
+                'step1': 'ملف الكيان',
+                'step2': 'المالية',
+                'step3': 'خطة PMP',
+                'step4': 'التشخيص',
+                'step1-title': 'أولاً: الملف التعريفي والموقع الجيوسياسي',
                 'lbl-name': 'اسم المشروع / الكيان',
-                'diag-title': 'مصفوفة التشخيص الاستراتيجي النهائي',
-                'btn-submit': 'إرسال المشروع للتحليل الذكي BI',
+                'lbl-country': 'الدولة',
+                'lbl-city': 'المدينة',
                 'btn-next': 'التالي',
-                'notif-success': 'تم تنفيذ الإجراء بنجاح',
-                'notif-lang': 'تم تغيير اللغة إلى العربية',
-                'inv-subtitle': 'إدارة المحفظة والتحكم في التدفقات'
+                'diag-title': 'مصفوفة التشخيص الاستراتيجي النهائي (5/5)',
+                'btn-submit': 'إرسال للتحليل الذكي BI',
+                'map-subtitle': 'نظام التتبع الجغرافي وحركة الأصول الاستراتيجية',
+                'war-path-title': 'اختر مسار الاستحواذ الاستراتيجي',
+                'notif-lang': 'تم تغيير لغة النظام بنجاح',
+                'notif-success': 'تم تنفيذ الإجراء الاستراتيجي بنجاح',
+                'notif-role': 'تم تغيير صلاحيات الوصول بنجاح'
             },
             en: {
-                'nav-subtitle': 'Global Asset Intelligence',
+                'nav-subtitle': 'Global Asset Intelligence System',
                 'nav-home': 'Home',
                 'nav-founder': 'Founder',
                 'nav-investor': 'Investor',
                 'nav-bi': 'Strategy BI',
                 'nav-msg': 'Messages',
-                'hero-badge': 'Intelligent Acquisition Ecosystem',
+                'nav-bi-back': 'Back to Terminal',
+                'role-user': 'Founder',
+                'role-inv': 'Investor',
+                'role-adm': 'Admin',
+                'hero-badge': 'Global Sovereign Acquisition System',
                 'hero-title': 'Digital <br><span class="text-amber-500">Strategic</span> Assets',
-                'hero-desc': 'Kunuz Platform integrates Big Data analytics (Strategy BI) with diagnostic matrices to link major projects with top-tier investors.',
+                'hero-desc': 'Kunuz integrates Strategy Big Data BI with Global Diagnostic Matrices to link massive assets with top-tier sovereign wealth investors.',
                 'btn-start': 'Start Funding Journey',
-                'btn-bi': 'Review Strategy BI',
+                'btn-bi': 'Explore Strategy BI',
+                'hero-monitor': 'Live Intelligence Stream',
                 'sect-title': 'Strategic Sectors Covered',
-                'dash-subtitle': 'Track progress and investor alignment',
-                'status-review': 'Strategic Review Ongoing',
+                'sect-subtitle': 'Comprehensive Global Asset Coverage',
+                'dash-subtitle': 'Track your project and investor alignment',
+                'status-review': 'Strategic Review in Progress',
                 'mou-wait': 'Awaiting MoU Signing',
                 'chart-title': 'Financial Flow & Growth (Quarterly)',
                 'stats-investors': 'Interested Investors',
                 'stats-align': 'Strategic Alignment',
-                'stats-next': 'Next Appointment',
-                'bi-subtitle': 'The Sovereign Intelligence & Massive Asset Control Center',
+                'stats-next': 'Next Milestone',
+                'stats-val': 'MoU Review',
+                'inv-subtitle': 'Portfolio Management & Sovereign Wealth Flow',
+                'bi-subtitle': 'The Sovereign Intelligence & Massive Asset Control Terminal',
                 'btn-map': 'Flow Map',
                 'stat-active': 'Active Leads',
                 'stat-target': 'Target Liquidity',
                 'stat-profit': 'Avg Profitability',
                 'stat-team': 'Team Efficiency',
                 'lbl-search': 'Deep Strategic Search',
-                'lbl-sector': 'Sector',
-                'lbl-risk': 'Risk',
-                'lbl-profit': 'Profit +%',
+                'lbl-sector': 'Strategic Sector',
+                'lbl-risk': 'Risk Level',
+                'lbl-profit': 'Net Profit +%',
+                'lbl-fund': 'Funding Cap ($M)',
                 'th-entity': 'Strategic Entity',
                 'th-profit': 'Profit (%)',
                 'th-fund': 'Fund ($M)',
                 'th-risk': 'Risk',
                 'th-status': 'Status',
-                'th-action': 'Decision',
+                'th-action': 'Management',
                 'msg-prompt': 'Select a project to start strategic negotiation',
-                'step1-title': 'First: Profile & Location',
+                'step1': 'Entity Profile',
+                'step2': 'Financials',
+                'step3': 'PMP Plan',
+                'step4': 'Diagnosis',
+                'step1-title': 'First: Identity & Geopolitical Location',
                 'lbl-name': 'Project / Entity Name',
-                'diag-title': 'Final Strategic Diagnosis Matrix',
-                'btn-submit': 'Submit for BI Analysis',
+                'lbl-country': 'Country',
+                'lbl-city': 'City',
                 'btn-next': 'Next Step',
-                'notif-success': 'Action executed successfully',
-                'notif-lang': 'Language changed to English',
-                'inv-subtitle': 'Portfolio Management & Pipeline Control'
+                'diag-title': 'Final Strategic Diagnosis Matrix (5/5)',
+                'btn-submit': 'Submit for BI Analysis',
+                'map-subtitle': 'Geospatial Tracking & Strategic Asset Flow',
+                'war-path-title': 'Select Strategic Acquisition Vector',
+                'notif-lang': 'System Language Updated Successfully',
+                'notif-success': 'Strategic Action Executed Successfully',
+                'notif-role': 'Access Privileges Updated'
             }
         };
 
         const SECTORS = [
             "AI & Automation", "Cyber Security", "FinTech", "Smart Logistics", 
-            "Sustainable Energy", "AgTech", "HealthTech", "Advanced E-Commerce"
+            "Sustainable Energy", "AgTech", "HealthTech", "E-Commerce",
+            "EdTech", "Green Economy", "Smart Real Estate", "B2B SaaS",
+            "Aerospace", "Biotech", "Defense Tech", "Advanced Manufacturing"
         ];
+
+        const CITY_COORDS = { "Riyadh": [24.71, 46.67], "Dubai": [25.20, 55.27], "Jeddah": [21.48, 39.19], "Cairo": [30.04, 31.23], "Manama": [26.22, 50.58], "Kuwait": [29.37, 47.97] };
 
         const REALISTIC_COMPANIES = [
-            "Sadeem Digital Solutions", "Namaa AgTech", "Maal Financials", "Ofoq Logistics",
-            "Rawabi Green Energy", "Tharaa AI", "Shield Cyber", "Kayan E-Commerce"
+            "Sadeem Cloud Solutions", "Namaa Smart Agriculture", "Maal Digital Banking", "Ofoq Global Logistics",
+            "Rawabi Sustainable Energy", "Tharaa AI Research", "Shield Cyber Security", "Kayan Smart Retail",
+            "Edubridge Interactive", "EcoLoop Green Economy", "Madar Aerospace Systems", "Makan Real Estate Tech",
+            "Imdad Supply Chain", "Nibras Biotech", "Diraa Defense Tech", "Sana Health Systems",
+            "Bayan Big Data", "Rowad Tech Inc", "Oasis Green Hydrogen", "Petra Mining Tech"
         ];
-
-        const CITY_COORDS = { "Riyadh": [24.71, 46.67], "Dubai": [25.20, 55.27], "Jeddah": [21.48, 39.19], "Cairo": [30.04, 31.23] };
 
         const SMART_QUESTIONS = [
-            { q:1, text: "Core Value Driver?", opts: [{v:"A", t:"Physical Assets"}, {v:"B", t:"Digital Algorithms"}, {v:"C", t:"IP & Big Data"}] },
-            { q:2, text: "Scalability Model?", opts: [{v:"A", t:"Physical Branching"}, {v:"B", t:"Local Digital"}, {v:"C", t:"Global Replication"}] },
-            { q:3, text: "Third Party Dependency?", opts: [{v:"A", t:"Fully Dependent"}, {v:"B", t:"Partial APIs"}, {v:"C", t:"Proprietary Tech"}] }
+            { q:1, text: "ما هو المحرك الأساسي للقيمة المضافة (Unique Value) في مشروعك؟", opts: [{v:"A", t:"أصول فيزيائية ملموسة"}, {v:"B", t:"خوارزميات وبرمجيات"}, {v:"C", t:"بيانات ضخمة وملكيات فكرية"}] },
+            { q:2, text: "كيف يتم التعامل مع التوسع الجغرافي (Scalability)؟", opts: [{v:"A", t:"يتطلب فروعاً مادية"}, {v:"B", t:"توسع رقمي تدريجي"}, {v:"C", t:"قابل للتكرار عالمياً فوراً"}] },
+            { q:3, text: "ما هي درجة الحماية القانونية والبرمجية لكيانك؟", opts: [{v:"A", t:"براءات اختراع قيد التسجيل"}, {v:"B", t:"حقوق ملكية فكرية مسجلة"}, {v:"C", t:"أسرار تجارية وتقنيات حصرية"}] },
+            { q:4, text: "ما مدى الاعتمادية على تقنيات الطرف الثالث (Third Party)؟", opts: [{v:"A", t:"تبعية كاملة لشركات كبرى"}, {v:"B", t:"تبعية جزئية (APIs)"}, {v:"C", t:"سيادة تقنية كاملة"}] },
+            { q:5, text: "متى تتوقع أن يصل الكيان لنقطة الربحية الكاملة (Breakeven)؟", opts: [{v:"A", t:"أكثر من 24 شهراً"}, {v:"B", t:"خلال 12-18 شهراً"}, {v:"C", t:"أقل من 6 أشهر"}] }
         ];
 
+        // ------------------------------------------------
+        // 2. INITIALIZATION & DATA SEEDING
+        // ------------------------------------------------
+        function seedData() {
+            projects = [];
+            const cities = Object.keys(CITY_COORDS);
+            for(let i=1; i<=30; i++) {
+                const city = cities[i % cities.length];
+                const profit = 15 + Math.floor(Math.random() * 55);
+                const funding = (Math.random() * 50 + 5).toFixed(1);
+                projects.push({
+                    id: i, name: REALISTIC_COMPANIES[i % REALISTIC_COMPANIES.length] + " " + (i),
+                    sector: SECTORS[i % SECTORS.length], city: city, country: "KSA", coords: CITY_COORDS[city],
+                    profit: profit, funding: funding, risk: ["Low", "Medium", "High"][i % 3], teamRating: (Math.random()*2+3).toFixed(1),
+                    status: 'Active', alignment: (Math.random()*15+82).toFixed(1)
+                });
+            }
+        }
+
+        function init() {
+            seedData();
+            autoDetectLanguage();
+            
+            // Populate Selectors
+            const filSector = document.getElementById('filter-sector');
+            const fSector = document.getElementById('f-sector');
+            if(filSector) filSector.innerHTML = '<option value="all">All Sectors</option>';
+            SECTORS.forEach(s => {
+                const opt = document.createElement('option'); opt.value = s; opt.textContent = s;
+                if(filSector) filSector.appendChild(opt.cloneNode(true));
+                if(fSector) fSector.appendChild(opt);
+            });
+
+            // Diagnosis UI
+            const qContainer = document.getElementById('diagnosis-questions-container');
+            if(qContainer) {
+                SMART_QUESTIONS.forEach(item => {
+                    const div = document.createElement('div');
+                    div.className = "bg-slate-50 p-12 rounded-[4rem] border border-slate-100 shadow-sm";
+                    div.innerHTML = `<p class="font-black text-slate-800 mb-10 italic text-2xl border-r-8 border-amber-500 pr-6 ltr:border-l-8 ltr:border-r-0 ltr:pl-6 ltr:pr-0">${item.text}</p><div class="grid grid-cols-1 md:grid-cols-3 gap-8">${item.opts.map(o => `<label class="flex items-center gap-6 p-8 bg-white rounded-[2.5rem] border-2 cursor-pointer hover:border-amber-500 hover:bg-amber-50 transition-all font-black text-sm italic shadow-sm"><input type="radio" name="q${item.q}" value="${o.v}" class="w-8 h-8 accent-amber-500"> ${o.t}</label>`).join('')}</div>`;
+                    qContainer.appendChild(div);
+                });
+            }
+
+            // Sectors Reference
+            const sectorRef = document.getElementById('sectors-ref-container');
+            if(sectorRef) {
+                SECTORS.slice(0, 8).forEach(s => {
+                    const div = document.createElement('div');
+                    div.className = "bg-slate-50 p-12 rounded-[4rem] border group hover:bg-white hover:shadow-4xl transition-all text-right ltr:text-left hover-lift";
+                    div.innerHTML = `<h4 class="font-black text-slate-800 mb-4 italic text-2xl tracking-tighter">${s}</h4><p class="text-[11px] text-slate-400 font-bold uppercase tracking-[0.4em] italic leading-loose">Asset Intelligence Hub</p>`;
+                    sectorRef.appendChild(div);
+                });
+            }
+
+            initMap();
+            applyFilters();
+            renderInvestorMatches();
+            renderChatList();
+            if(typeof lucide !== 'undefined') lucide.createIcons();
+        }
+
+        // ------------------------------------------------
+        // 3. i18n & NAVIGATION ENGINE
+        // ------------------------------------------------
         function autoDetectLanguage() {
             const browserLang = navigator.language.split('-')[0];
             currentLang = browserLang === 'ar' ? 'ar' : 'en';
@@ -539,90 +946,65 @@
                 }
             });
             
-            // Re-render table and matches to respect language
-            applyFilters();
-            renderInvestorMatches();
-            renderChatList();
-        }
-
-        function seedData() {
-            projects = [];
-            const cities = Object.keys(CITY_COORDS);
-            for(let i=1; i<=25; i++) {
-                const city = cities[i % cities.length];
-                const profit = 15 + Math.floor(Math.random() * 45);
-                const funding = (Math.random() * 45 + 5).toFixed(1);
-                projects.push({
-                    id: i, name: REALISTIC_COMPANIES[i % REALISTIC_COMPANIES.length] + " " + (i),
-                    sector: SECTORS[i % SECTORS.length], city: city, coords: CITY_COORDS[city], country: "KSA",
-                    profit: profit, funding: funding, risk: ["Low", "Medium", "High"][i % 3], teamRating: (Math.random()*2+3).toFixed(1),
-                    status: 'Active', alignment: (Math.random()*15+82).toFixed(1)
-                });
-            }
-        }
-
-        function init() {
-            seedData();
-            autoDetectLanguage();
-            const sectorRef = document.getElementById('sectors-ref-container');
-            const filSector = document.getElementById('filter-sector');
-            const fSector = document.getElementById('f-sector');
-            
-            if(filSector) filSector.innerHTML = '<option value="all">All Sectors</option>';
-            SECTORS.forEach(s => {
-                const opt = document.createElement('option'); opt.value = s; opt.textContent = s;
-                if(filSector) filSector.appendChild(opt.cloneNode(true));
-                if(fSector) fSector.appendChild(opt);
-                if(sectorRef) {
-                    const div = document.createElement('div');
-                    div.className = "bg-slate-50 p-10 rounded-[3rem] border group hover:bg-white hover:shadow-2xl transition-all text-right ltr:text-left";
-                    div.innerHTML = `<h4 class="font-black text-slate-800 mb-2 italic text-lg tracking-tighter">${s}</h4><p class="text-[9px] text-slate-400 font-bold uppercase tracking-widest italic">Asset Intelligence Hub</p>`;
-                    sectorRef.appendChild(div);
-                }
-            });
-
-            const qContainer = document.getElementById('diagnosis-questions-container');
-            if(qContainer) {
-                SMART_QUESTIONS.forEach(item => {
-                    const div = document.createElement('div');
-                    div.className = "bg-slate-50 p-10 rounded-[4rem] border border-slate-100 shadow-sm";
-                    div.innerHTML = `<p class="font-black text-slate-800 mb-8 italic text-lg border-r-4 border-amber-500 pr-4">${item.text}</p><div class="grid grid-cols-1 md:grid-cols-3 gap-6">${item.opts.map(o => `<label class="flex items-center gap-4 p-5 bg-white rounded-[2rem] border-2 cursor-pointer hover:border-amber-500 transition-all font-black text-xs italic"><input type="radio" name="q${item.q}" value="${o.v}" class="w-6 h-6 accent-amber-500"> ${o.t}</label>`).join('')}</div>`;
-                    qContainer.appendChild(div);
-                });
-            }
-
-            initMap();
+            // Sync with dynamic elements
             applyFilters();
             renderInvestorMatches();
             renderChatList();
             if(typeof lucide !== 'undefined') lucide.createIcons();
         }
 
+        function showPage(id) {
+            document.querySelectorAll('.page-section').forEach(p => p.classList.add('hidden'));
+            const el = document.getElementById(`${id}-page`);
+            if(el) {
+                el.classList.add('active-section'); 
+                el.classList.remove('hidden');
+            }
+            if(id === 'form') fillDefaultFormData();
+            if(id === 'map' && map) setTimeout(() => map.invalidateSize(), 400);
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+
         function setRole(role) {
             userRole = role;
             ['user', 'inv', 'adm'].forEach(r => {
                 const btn = document.getElementById(`role-${r}-btn`);
-                if(btn) btn.className = r === role ? "px-3 md:px-5 py-1.5 rounded-full text-[9px] font-black transition-all bg-white shadow-sm text-slate-900 border" : "px-3 md:px-5 py-1.5 rounded-full text-[9px] font-black transition-all text-slate-400";
+                if(btn) btn.className = r === role ? "px-5 py-2 rounded-full text-[9px] font-black transition-all bg-white shadow-xl text-slate-900 border" : "px-5 py-2 rounded-full text-[9px] font-black transition-all text-slate-400";
             });
-            document.getElementById('nav-inv-btn').classList.toggle('hidden', role !== 'investor');
-            document.getElementById('nav-adm-btn').classList.toggle('hidden', role !== 'admin');
-            document.getElementById('nav-msg-btn').classList.toggle('hidden', role !== 'admin');
+            
+            // Toggle visibility
+            const invBtns = [document.getElementById('nav-inv-btn'), document.getElementById('mob-inv-btn')];
+            const admBtns = [document.getElementById('nav-adm-btn'), document.getElementById('mob-adm-btn'), document.getElementById('nav-msg-btn')];
+            
+            invBtns.forEach(b => b?.classList.toggle('hidden', role !== 'investor'));
+            admBtns.forEach(b => b?.classList.toggle('hidden', role !== 'admin'));
             
             if(role === 'admin') showPage('dashboard'); else if(role === 'investor') showPage('inv-dash'); else showPage('landing');
+            showNotification(i18n[currentLang]['notif-role']);
         }
 
+        function toggleMobileMenu() {
+            document.getElementById('mobile-menu').classList.toggle('hidden');
+            document.getElementById('mobile-menu').classList.toggle('flex');
+        }
+
+        // ------------------------------------------------
+        // 4. BI & FILTERING ENGINE
+        // ------------------------------------------------
         function applyFilters() {
             const search = document.getElementById('filter-search')?.value.toLowerCase() || "";
             const sector = document.getElementById('filter-sector')?.value || "all";
             const risk = document.getElementById('filter-risk')?.value || "all";
             const profitVal = parseFloat(document.getElementById('filter-profit-val')?.value) || 0;
+            const fundingVal = parseFloat(document.getElementById('filter-funding-val')?.value) || Infinity;
 
             const filtered = projects.filter(p => {
                 const sMatch = p.name.toLowerCase().includes(search) || p.city.toLowerCase().includes(search);
                 const sectorMatch = sector === 'all' || p.sector === sector;
                 const riskMatch = risk === 'all' || p.risk === risk;
                 const profitMatch = p.profit >= profitVal;
-                return sMatch && sectorMatch && riskMatch && profitMatch;
+                const fundingMatch = parseFloat(p.funding) <= fundingVal;
+                return sMatch && sectorMatch && riskMatch && profitMatch && fundingMatch;
             });
 
             renderTable(filtered);
@@ -635,12 +1017,12 @@
             if(!tbody) return;
             tbody.innerHTML = data.map(p => `
                 <tr class="hover:bg-white/[0.04] transition-all group">
-                    <td class="p-8" data-label="${i18n[currentLang]['th-entity']}"><div><div class="font-black text-slate-100 italic tracking-tighter text-lg">${p.name}</div><div class="text-[9px] text-amber-500 font-black uppercase mt-1 italic tracking-[0.2em] italic">${p.sector}</div></div></td>
-                    <td class="p-8 text-center font-black text-amber-500 text-xl italic" data-label="${i18n[currentLang]['th-profit']}">${p.profit}%</td>
-                    <td class="p-8 text-center font-black text-slate-300 italic" data-label="${i18n[currentLang]['th-fund']}">$${p.funding}M</td>
-                    <td class="p-8 text-center" data-label="${i18n[currentLang]['th-risk']}"><span class="px-3 py-1 rounded-full text-[8px] font-black uppercase border border-amber-500 text-amber-500 italic">${p.risk}</span></td>
-                    <td class="p-8 text-center" data-label="${i18n[currentLang]['th-status']}"><span class="text-[8px] font-black px-4 py-2 bg-white/5 rounded-full text-green-500 uppercase italic">${p.status}</span></td>
-                    <td class="p-8 text-center" data-label="${i18n[currentLang]['th-action']}"><button onclick="viewProject(${p.id})" class="text-amber-500 hover:scale-125 transition-transform"><i data-lucide="microscope" class="w-6 h-6"></i></button></td>
+                    <td class="p-10" data-label="${i18n[currentLang]['th-entity']}"><div><div class="font-black text-slate-100 italic tracking-tighter text-xl">${p.name}</div><div class="text-[10px] text-amber-500 font-black uppercase mt-1 italic tracking-[0.3em]">${p.sector}</div></div></td>
+                    <td class="p-10 text-center font-black text-amber-500 text-3xl italic" data-label="${i18n[currentLang]['th-profit']}">${p.profit}%</td>
+                    <td class="p-10 text-center font-black text-slate-300 italic text-2xl" data-label="${i18n[currentLang]['th-fund']}">$${p.funding}M</td>
+                    <td class="p-10 text-center" data-label="${i18n[currentLang]['th-risk']}"><span class="px-5 py-2 rounded-full text-[9px] font-black uppercase border ${p.risk==='Low'?'border-green-500 text-green-500':'border-amber-500 text-amber-500'} italic">${p.risk}</span></td>
+                    <td class="p-10 text-center" data-label="${i18n[currentLang]['th-status']}"><span class="text-[10px] font-black px-5 py-2 bg-white/5 rounded-full ${p.status==='Rejected'?'text-red-500':'text-green-500'} uppercase italic tracking-widest">${p.status}</span></td>
+                    <td class="p-10 text-center" data-label="${i18n[currentLang]['th-action']}"><button onclick="viewProject(${p.id})" class="bg-white/5 p-5 rounded-3xl text-amber-500 hover:scale-125 transition-transform shadow-xl"><i data-lucide="microscope" class="w-8 h-8"></i></button></td>
                 </tr>
             `).join('');
             lucide.createIcons();
@@ -660,40 +1042,24 @@
         function renderInvestorMatches() {
             const container = document.getElementById('investor-match-list');
             if(!container) return;
-            const matches = projects.sort((a,b) => b.alignment - a.alignment).slice(0, 8);
+            const matches = projects.sort((a,b) => b.alignment - a.alignment).slice(0, 10);
             container.innerHTML = matches.map(p => `
-                <div class="flex flex-col lg:flex-row items-center justify-between p-10 glass-card rounded-[3rem] hover:bg-white/10 transition-all gap-8">
-                    <div class="flex items-center gap-8">
-                        <div class="w-16 h-16 bg-green-500/20 text-green-400 rounded-[2rem] flex items-center justify-center font-black text-2xl shadow-2xl">${p.alignment}%</div>
-                        <div class="text-right ltr:text-left"><h4 class="font-black text-2xl italic tracking-tighter">${p.name}</h4><p class="text-[9px] text-slate-500 font-black uppercase mt-2 italic">${p.sector} • ${p.city}</p></div>
+                <div class="flex flex-col lg:flex-row items-center justify-between p-12 glass-card rounded-[5rem] hover:bg-white/10 transition-all gap-10 hover-lift shadow-4xl">
+                    <div class="flex items-center gap-12 text-right ltr:text-left">
+                        <div class="w-28 h-28 bg-green-500/20 text-green-400 rounded-[3rem] flex items-center justify-center font-black text-4xl shadow-4xl shadow-green-500/10">${p.alignment}%</div>
+                        <div><h4 class="font-black text-4xl italic tracking-tighter ltr:tracking-normal">${p.name}</h4><p class="text-[11px] text-slate-500 font-black uppercase italic tracking-[0.4em] mt-3">${p.sector} • ${p.city}</p></div>
                     </div>
-                    <div class="flex flex-wrap items-center gap-10">
-                        <div class="text-center border-r border-white/5 pr-10 rtl:border-r rtl:border-l-0 ltr:border-l ltr:border-r-0 ltr:pl-10"><p class="text-[9px] text-slate-500 font-black mb-1 uppercase">Fund Cap</p><p class="text-white font-black text-2xl italic tracking-tighter">$${p.funding}M</p></div>
-                        <button onclick="viewProject(${p.id})" class="bg-green-500 text-slate-950 px-10 py-5 rounded-3xl font-black text-xs uppercase shadow-2xl hover:scale-105 transition-all">Analysis</button>
+                    <div class="flex flex-wrap items-center gap-16">
+                        <div class="text-center border-r border-white/10 pr-16 rtl:border-r ltr:border-l ltr:border-r-0 ltr:pl-16"><p class="text-[10px] text-slate-500 font-black mb-2 uppercase tracking-widest italic">Asset Capitalization</p><p class="text-white font-black text-3xl italic tracking-tighter ltr:tracking-normal">$${p.funding}M</p></div>
+                        <button onclick="viewProject(${p.id})" class="bg-green-500 text-slate-950 px-14 py-6 rounded-[2.5rem] font-black text-sm uppercase shadow-4xl hover:scale-110 transition-all italic tracking-tighter ltr:tracking-normal ltr:text-xs">تحليل الاستحواذ</button>
                     </div>
                 </div>
             `).join('');
         }
 
-        function viewProject(id) {
-            currentProjectId = id;
-            const p = projects.find(x => x.id == id);
-            if(!p) return;
-            document.getElementById('modal-title').textContent = p.name;
-            document.getElementById('modal-metrics-grid').innerHTML = `
-                <div class="bg-slate-50 p-8 rounded-[2.5rem] border"><span class="text-slate-400 block text-[9px] uppercase font-black italic mb-2 tracking-widest italic">Location</span><p class="font-black text-slate-800 text-lg">${p.city}</p></div>
-                <div class="bg-slate-50 p-8 rounded-[2.5rem] border"><span class="text-slate-400 block text-[9px] uppercase font-black italic mb-2 tracking-widest italic">ROI</span><p class="font-black text-amber-600 text-3xl italic tracking-tighter">${p.profit}%</p></div>
-                <div class="bg-slate-50 p-8 rounded-[2.5rem] border"><span class="text-slate-400 block text-[9px] uppercase font-black italic mb-2 tracking-widest italic">Funding</span><p class="font-black text-slate-800 text-2xl italic tracking-tighter">$${p.funding}M</p></div>
-                <div class="bg-slate-50 p-8 rounded-[2.5rem] border"><span class="text-slate-400 block text-[9px] uppercase font-black italic mb-2 tracking-widest italic">Alignment</span><p class="font-black text-green-600 text-2xl italic tracking-tighter">${p.alignment}%</p></div>
-                <div class="bg-slate-50 p-8 rounded-[2.5rem] border"><span class="text-slate-400 block text-[9px] uppercase font-black italic mb-2 tracking-widest italic">Risk</span><p class="font-black text-slate-800 text-xl uppercase italic">${p.risk}</p></div>
-            `;
-            document.getElementById('admin-actions-sidebar').classList.toggle('hidden', userRole !== 'admin');
-            backToMainView();
-            document.getElementById('details-modal').classList.remove('hidden');
-            document.getElementById('details-modal').classList.add('flex');
-            lucide.createIcons();
-        }
-
+        // ------------------------------------------------
+        // 5. MAPS & GEOSPATIAL
+        // ------------------------------------------------
         function initMap() {
             const mapEl = document.getElementById('project-map');
             if(!mapEl || map) return;
@@ -706,42 +1072,105 @@
             if(!markersGroup) return;
             markersGroup.clearLayers();
             data.forEach(p => {
-                if(p.coords) {
-                    const icon = L.divIcon({ className: 'custom-icon', html: `<div style="background:#f59e0b;width:16px;height:16px;border:2px solid white;border-radius:50%;"></div>`, iconSize: [16, 16] });
-                    L.marker(p.coords, { icon: icon }).addTo(markersGroup).bindPopup(`<div class="text-right font-black italic p-2"><p class="text-amber-500 mb-2">${p.name}</p><button onclick="viewProject(${p.id})" class="w-full py-2 bg-amber-500 rounded-xl">BI Analysis</button></div>`);
-                }
+                const icon = L.divIcon({ className: 'custom-icon', html: `<div style="background:#f59e0b;width:18px;height:18px;border:3px solid white;border-radius:50%;box-shadow:0 0 15px #f59e0b"></div>`, iconSize: [18, 18] });
+                if(p.coords) L.marker(p.coords, { icon: icon }).addTo(markersGroup).bindPopup(`<div class="text-right font-black italic p-4"><p class="text-amber-500 mb-4 text-xl font-black">${p.name}</p><button onclick="viewProject(${p.id})" class="w-full py-3 bg-amber-500 rounded-xl text-slate-950 font-black uppercase text-[10px] italic">فتح المحلل الاستراتيجي</button></div>`);
             });
         }
 
-        function showPage(id) {
-            document.querySelectorAll('.page-section').forEach(p => p.classList.add('hidden'));
-            const el = document.getElementById(`${id}-page`);
-            if(el) {
-                el.classList.add('active-section'); 
-                el.classList.remove('hidden');
-            }
-            if(id === 'form') fillDefaultFormData();
-            if(id === 'map' && map) setTimeout(() => map.invalidateSize(), 300);
-            window.scrollTo({ top: 0, behavior: 'smooth' });
-        }
-
-        function showNotification(text) { 
-            const toast = document.getElementById('notification'); 
-            document.getElementById('notification-text').textContent = text; 
-            toast.classList.add('show'); 
-            setTimeout(() => toast.classList.remove('show'), 4000); 
+        // ------------------------------------------------
+        // 6. WAR ROOM & MODAL SYSTEM
+        // ------------------------------------------------
+        function viewProject(id) {
+            currentProjectId = id;
+            const p = projects.find(x => x.id == id);
+            if(!p) return;
+            document.getElementById('modal-title').textContent = p.name;
+            document.getElementById('modal-status-badge').textContent = p.status;
+            document.getElementById('modal-metrics-grid').innerHTML = `
+                <div class="bg-slate-50 p-10 rounded-[3rem] border border-slate-100 shadow-sm"><span class="text-slate-400 block text-[10px] uppercase font-black italic mb-3 tracking-widest">Location</span><p class="font-black text-slate-900 text-2xl">${p.city}, ${p.country}</p></div>
+                <div class="bg-slate-50 p-10 rounded-[3rem] border border-slate-100 shadow-sm"><span class="text-slate-400 block text-[10px] uppercase font-black italic mb-3 tracking-widest">Expected ROI</span><p class="font-black text-amber-600 text-5xl italic ltr:tracking-normal">${p.profit}%</p></div>
+                <div class="bg-slate-50 p-10 rounded-[3rem] border border-slate-100 shadow-sm"><span class="text-slate-400 block text-[10px] uppercase font-black italic mb-3 tracking-widest">Target Liquidity</span><p class="font-black text-slate-900 text-4xl italic ltr:tracking-normal">$${p.funding}M</p></div>
+                <div class="bg-slate-50 p-10 rounded-[3rem] border border-slate-100 shadow-sm"><span class="text-slate-400 block text-[10px] uppercase font-black italic mb-3 tracking-widest">Alignment Rate</span><p class="font-black text-green-600 text-4xl italic ltr:tracking-normal">${p.alignment}%</p></div>
+                <div class="bg-slate-50 p-10 rounded-[3rem] border border-slate-100 shadow-sm"><span class="text-slate-400 block text-[10px] uppercase font-black italic mb-3 tracking-widest">Team Maturity</span><p class="font-black text-blue-600 text-4xl italic">${p.teamRating}/5</p></div>
+                <div class="bg-slate-50 p-10 rounded-[3rem] border border-slate-100 shadow-sm"><span class="text-slate-400 block text-[10px] uppercase font-black italic mb-3 tracking-widest">Risk Factor</span><p class="font-black text-slate-900 text-2xl uppercase italic">${p.risk}</p></div>
+            `;
+            document.getElementById('admin-actions-sidebar').classList.toggle('hidden', userRole !== 'admin');
+            backToMainView();
+            document.getElementById('details-modal').classList.remove('hidden');
+            document.getElementById('details-modal').classList.add('flex');
+            lucide.createIcons();
         }
 
         function closeModal() { document.getElementById('details-modal').classList.add('hidden'); }
         function showAcquisitionRoom() { document.getElementById('modal-view-main').classList.add('hidden'); document.getElementById('modal-view-acquisition').classList.remove('hidden'); lucide.createIcons(); }
         function backToMainView() { document.getElementById('modal-view-acquisition').classList.add('hidden'); document.getElementById('modal-view-main').classList.remove('hidden'); document.getElementById('acq-path-selection').classList.remove('hidden'); document.getElementById('acq-active-room').classList.add('hidden'); }
-        function toggleMobileMenu() { document.getElementById('mobile-menu').classList.toggle('hidden'); document.getElementById('mobile-menu').classList.toggle('flex'); }
+        
+        function activatePath(path) {
+            document.getElementById('acq-path-selection').classList.add('hidden');
+            document.getElementById('acq-active-room').classList.remove('hidden');
+            const msgLive = document.getElementById('chat-messages-live');
+            msgLive.innerHTML = `<div class="flex justify-start"><div class="chat-received p-8 max-w-[85%] text-sm font-bold italic ltr:text-left ltr:italic">مرحباً بكم. نحن فريق الاستحواذ السيادي. لقد قمنا بتفعيل مسار [${path}] لهذا الكيان. ننتظر عرضكم المالي الأول لبدء النقاش.</div></div>`;
+            lucide.createIcons();
+        }
 
+        function updateStatus(status) { 
+            const p = projects.find(x => x.id == currentProjectId); 
+            if(p) { p.status = status; showNotification(`Strategic Update: ${status}`); viewProject(currentProjectId); applyFilters(); } 
+        }
+
+        function simulateSend(type) { 
+            showNotification(`Executing ${type} protocol...`); 
+            setTimeout(() => showNotification(`${type} executed successfully ✅`), 2000); 
+        }
+
+        // ------------------------------------------------
+        // 7. CHAT & MESSAGES
+        // ------------------------------------------------
+        function renderChatList() {
+            const container = document.getElementById('chat-list');
+            if(!container) return;
+            container.innerHTML = projects.slice(0, 12).map(p => `
+                <div onclick="openChat(${p.id})" class="p-8 bg-white border border-slate-100 rounded-[3rem] flex items-center gap-6 cursor-pointer hover:border-amber-500 hover:shadow-2xl transition-all group shadow-sm">
+                    <div class="w-14 h-14 bg-slate-100 rounded-2xl flex items-center justify-center font-black italic text-xs group-hover:bg-amber-500 group-hover:text-slate-950 transition-colors shadow-sm">${p.name[0]}</div>
+                    <div class="grow overflow-hidden text-right ltr:text-left">
+                        <p class="text-sm font-black truncate italic ltr:tracking-tighter">${p.name}</p>
+                        <p class="text-[9px] text-slate-400 font-bold italic truncate uppercase tracking-widest mt-2 italic ltr:text-[8px]">Active Negotiation Stream</p>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        function openChat(id) {
+            const p = projects.find(x => x.id == id);
+            document.getElementById('chat-target-name').textContent = p.name;
+            const msgContainer = document.getElementById('chat-messages-container');
+            msgContainer.className = "grow p-14 overflow-y-auto space-y-12 custom-scrollbar bg-slate-50/10";
+            msgContainer.innerHTML = `
+                <div class="flex justify-start"><div class="chat-received p-10 max-w-[85%] text-sm font-bold shadow-2xl italic ltr:text-left">تحية طيبة لفريق كنوز. نحن بانتظار ردكم على شروط الاستحواذ المقترحة لكيان [${p.name}] تمهيداً لإصدار الـ MoU.</div></div>
+                <div class="flex justify-end"><div class="chat-sent p-10 max-w-[85%] text-sm font-black shadow-4xl italic ltr:text-right">تم استلام الرسالة. جاري مراجعة البيانات عبر Strategy BI وسنقوم بالرد خلال ساعات العمل القادمة.</div></div>
+            `;
+            showPage('messages');
+        }
+
+        // ------------------------------------------------
+        // 8. FORM & AUTO-FILL SYSTEM
+        // ------------------------------------------------
         function fillDefaultFormData() {
-            document.getElementById('f-name').value = "Sadeem Cloud & AI Hub";
-            document.getElementById('f-sector').value = "AI & Automation";
-            document.getElementById('f-country').value = "KSA";
-            document.getElementById('f-city').value = "Riyadh";
+            const defaults = {
+                name: "Sadeem Cloud & Strategic AI",
+                sector: "AI & Automation",
+                country: "KSA",
+                city: "Riyadh",
+                profit: 45,
+                fund: 7500000,
+                risk: "Low"
+            };
+            document.getElementById('f-name').value = defaults.name;
+            document.getElementById('f-sector').value = defaults.sector;
+            document.getElementById('f-country').value = defaults.country;
+            document.getElementById('f-city').value = defaults.city;
+            document.getElementById('f-profit').value = defaults.profit;
+            document.getElementById('f-fund').value = defaults.fund;
             document.querySelectorAll('input[type="radio"]').forEach((el, i) => { if((i+1)%3 === 0) el.checked = true; });
         }
 
@@ -749,6 +1178,7 @@
             document.querySelectorAll('[id^="form-step-"]').forEach(d => d.classList.add('hidden'));
             document.getElementById(`form-step-${s}`).classList.remove('hidden');
             document.getElementById('step-line').style.width = `${(s-1)*33.33}%`;
+            window.scrollTo({ top: 0, behavior: 'smooth' });
         }
 
         function submitDiagnostics() {
@@ -757,9 +1187,18 @@
                 document.getElementById('loading-screen').classList.add('hidden');
                 showNotification(i18n[currentLang]['notif-success']);
                 showPage('ent-dash');
-            }, 2000);
+                nextStep(1);
+            }, 3000);
         }
 
+        function showNotification(text) { 
+            const toast = document.getElementById('notification'); 
+            document.getElementById('notification-text').textContent = text; 
+            toast.classList.add('show'); 
+            setTimeout(() => toast.classList.remove('show'), 4500); 
+        }
+
+        // STARTUP
         window.onload = init;
     </script>
 </body>
