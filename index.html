@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>منصة كنوز | النظام الاستراتيجي الشامل</title>
+    <title>منصة كنوز | شبكة الأصول الاستراتيجية العالمية</title>
     <!-- Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
     <!-- Lucide Icons -->
@@ -13,296 +13,373 @@
     <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Cairo:wght@300;400;600;700;900&display=swap');
-        body { font-family: 'Cairo', sans-serif; scroll-behavior: smooth; overflow-x: hidden; background-color: #f8fafc; }
-        .hidden { display: none; }
-        .active-step { display: block; animation: fadeIn 0.5s ease-out; }
-        @keyframes fadeIn { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
-        .glass-card { background: rgba(255, 255, 255, 0.03); backdrop-filter: blur(15px); border: 1px solid rgba(255, 255, 255, 0.1); }
-        .admin-theme { background-color: #020617; color: white; }
-        #project-map { height: 400px; width: 100%; border-radius: 3rem; border: 1px solid rgba(255,255,255,0.1); z-index: 10; }
-        @media (min-width: 768px) { #project-map { height: 650px; } }
-        .custom-scrollbar::-webkit-scrollbar { width: 6px; }
-        .custom-scrollbar::-webkit-scrollbar-thumb { background: #f59e0b; border-radius: 12px; }
-        #notification { position: fixed; bottom: 30px; left: 50%; transform: translateX(-50%) translateY(150px); transition: 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275); z-index: 9999; }
-        #notification.show { transform: translateX(-50%) translateY(0); }
-        .progress-ring { transition: stroke-dashoffset 0.5s ease-in-out; transform: rotate(-90deg); transform-origin: 50% 50%; }
-        .bar-anim { transition: height 1.2s cubic-bezier(0.4, 0, 0.2, 1); }
-        .chat-bubble-sent { background: #f59e0b; color: #020617; border-radius: 1.5rem 1.5rem 0 1.5rem; }
-        .chat-bubble-received { background: #ffffff; color: #020617; border-radius: 1.5rem 1.5rem 1.5rem 0; border: 1px solid #e2e8f0; }
         
-        /* Interactive Elements */
-        .hover-lift { transition: transform 0.3s ease, box-shadow 0.3s ease; }
-        .hover-lift:hover { transform: translateY(-5px); box-shadow: 0 20px 25px -5px rgb(0 0 0 / 0.1), 0 8px 10px -6px rgb(0 0 0 / 0.1); }
-
-        /* Mobile Adjustments */
-        @media (max-width: 768px) {
-            .responsive-table thead { display: none; }
-            .responsive-table tr { display: block; margin-bottom: 2rem; background: rgba(255,255,255,0.05); border-radius: 2rem; padding: 1.5rem; border: 1px solid rgba(255,255,255,0.1); }
-            .responsive-table td { display: flex; justify-content: space-between; padding: 0.75rem 0; border-bottom: 1px solid rgba(255,255,255,0.05); text-align: left; }
-            .responsive-table td:last-child { border: none; }
-            .responsive-table td::before { content: attr(data-label); font-weight: 900; color: #94a3b8; font-size: 0.75rem; text-transform: uppercase; }
+        :root { 
+            --primary: #f59e0b; 
+            --primary-dark: #d97706;
+            --bg-dark: #020617; 
+            --accent-blue: #3b82f6;
+            --accent-green: #22c55e;
         }
+        
+        body { 
+            font-family: 'Cairo', sans-serif; 
+            scroll-behavior: smooth; 
+            overflow-x: hidden; 
+            background-color: #f8fafc;
+        }
+
+        /* منع اختفاء العناصر خلف القائمة */
+        .page-section { min-height: 100vh; padding-top: 2rem; }
+        
+        .hidden { display: none !important; }
+        .active-section { display: block; animation: fadeIn 0.6s cubic-bezier(0.16, 1, 0.3, 1); }
+        
+        @keyframes fadeIn { 
+            from { opacity: 0; transform: translateY(20px); } 
+            to { opacity: 1; transform: translateY(0); } 
+        }
+
+        /* نظام البطاقات المتجاوب المحسن */
+        .glass-card { 
+            background: rgba(255, 255, 255, 0.05); 
+            backdrop-filter: blur(15px); 
+            border: 1px solid rgba(255, 255, 255, 0.1); 
+        }
+        
+        .admin-theme { background-color: var(--bg-dark); color: white; }
+        
+        /* تحسين التمرير */
+        .custom-scrollbar::-webkit-scrollbar { width: 6px; height: 6px; }
+        .custom-scrollbar::-webkit-scrollbar-track { background: transparent; }
+        .custom-scrollbar::-webkit-scrollbar-thumb { background: var(--primary); border-radius: 10px; }
+        
+        /* حل مشكلة عرض الجداول في الجوال - تحويلها لبطاقات كاملة */
+        @media (max-width: 1024px) {
+            .responsive-table thead { display: none; }
+            .responsive-table tr { 
+                display: block; 
+                margin-bottom: 2rem; 
+                background: white; 
+                border-radius: 2rem; 
+                padding: 1.5rem; 
+                border: 1px solid #e2e8f0; 
+                box-shadow: 0 10px 15px -3px rgba(0,0,0,0.05);
+            }
+            .admin-theme .responsive-table tr {
+                background: rgba(255,255,255,0.03);
+                border-color: rgba(255,255,255,0.08);
+            }
+            .responsive-table td { 
+                display: flex; 
+                justify-content: space-between; 
+                align-items: center; 
+                padding: 1rem 0; 
+                border-bottom: 1px solid rgba(0,0,0,0.05); 
+            }
+            .admin-theme .responsive-table td { border-bottom: 1px solid rgba(255,255,255,0.05); }
+            .responsive-table td:last-child { border: none; padding-top: 1.5rem; justify-content: center; width: 100%; }
+            .responsive-table td::before { 
+                content: attr(data-label); 
+                font-weight: 900; 
+                color: #64748b; 
+                font-size: 0.75rem; 
+                margin-left: 1rem;
+            }
+        }
+
+        .hover-lift { transition: transform 0.3s ease, box-shadow 0.3s ease; }
+        .hover-lift:hover { transform: translateY(-5px); box-shadow: 0 20px 25px -5px rgba(0,0,0,0.1); }
+        
+        #notification { 
+            position: fixed; 
+            bottom: 30px; 
+            left: 50%; 
+            transform: translateX(-50%) translateY(150px); 
+            transition: 0.6s cubic-bezier(0.19, 1, 0.22, 1); 
+            z-index: 10000; 
+        }
+        #notification.show { transform: translateX(-50%) translateY(0); }
+        
+        .progress-ring { transition: stroke-dashoffset 0.8s ease; transform: rotate(-90deg); transform-origin: 50% 50%; }
+        
+        #project-map { height: 500px; width: 100%; border-radius: 2.5rem; z-index: 10; border: 4px solid rgba(255,255,255,0.05); }
+
+        /* فقاعات الدردشة */
+        .chat-sent { background: var(--primary); color: #000; border-radius: 1.5rem 1.5rem 0 1.5rem; padding: 1rem 1.5rem; }
+        .chat-received { background: #f1f5f9; color: #000; border-radius: 1.5rem 1.5rem 1.5rem 0; padding: 1rem 1.5rem; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.05); }
     </style>
 </head>
-<body class="text-slate-900 overflow-x-hidden">
+<body class="text-slate-900 bg-slate-50 transition-colors duration-500">
 
-    <!-- Screen Overlay: Loading -->
-    <div id="loading-screen" class="fixed inset-0 bg-slate-950 z-[9999] hidden flex flex-col items-center justify-center backdrop-blur-xl">
+    <!-- شاشة التحميل -->
+    <div id="loading-screen" class="fixed inset-0 bg-slate-950 z-[11000] hidden flex flex-col items-center justify-center backdrop-blur-3xl">
         <div class="relative w-24 h-24 mb-8">
             <div class="absolute inset-0 border-4 border-amber-500/20 rounded-full"></div>
             <div class="absolute inset-0 border-4 border-amber-500 border-t-transparent rounded-full animate-spin"></div>
+            <div class="absolute inset-4 bg-amber-500 rounded-xl animate-pulse flex items-center justify-center font-black text-slate-950 italic">ك</div>
         </div>
-        <p class="text-white font-black text-xl italic tracking-[0.2em] animate-pulse uppercase">Kunuz Intelligence System</p>
-        <p class="text-slate-500 text-[10px] mt-4 font-bold">جاري معالجة البيانات الاستراتيجية والربط مع الخوادم...</p>
+        <p class="text-white font-black text-xl italic tracking-widest uppercase">جاري تشغيل محرك كنوز الاستراتيجي...</p>
     </div>
 
-    <!-- Notification Engine -->
-    <div id="notification" class="bg-slate-950 text-white px-10 py-6 rounded-[2.5rem] shadow-2xl border border-white/10 flex items-center gap-6 min-w-[380px] backdrop-blur-md">
-        <div class="w-12 h-12 bg-amber-500 rounded-2xl flex items-center justify-center text-slate-950 shadow-xl shadow-amber-500/20"><i data-lucide="bell-ring" class="w-6 h-6"></i></div>
+    <!-- الإشعارات -->
+    <div id="notification" class="bg-slate-950/95 text-white px-10 py-6 rounded-[2.5rem] shadow-3xl border border-white/10 flex items-center gap-6 min-w-[350px] backdrop-blur-xl">
+        <div class="w-14 h-14 bg-amber-500 rounded-3xl flex items-center justify-center text-slate-950 shadow-2xl">
+            <i data-lucide="bell-ring" class="w-7 h-7"></i>
+        </div>
         <div>
-            <p id="notification-text" class="text-sm font-black italic">نظام كنوز: تم تنفيذ العملية بنجاح</p>
-            <p class="text-[8px] text-slate-500 uppercase font-black mt-1">Strategic Alert System Active</p>
+            <p id="notification-text" class="text-sm font-black italic"></p>
+            <p class="text-[8px] text-slate-500 font-bold uppercase mt-1 tracking-widest">نظام الحماية والأمان نشط</p>
         </div>
     </div>
 
-    <!-- Navigation Architecture -->
-    <nav class="fixed top-0 w-full z-[100] bg-white/90 backdrop-blur-2xl border-b border-slate-100 px-6 md:px-12 py-5 flex justify-between items-center shadow-sm">
+    <!-- القائمة العلوية -->
+    <nav class="fixed top-0 w-full z-[1000] bg-white/90 backdrop-blur-2xl border-b border-slate-100 px-6 lg:px-16 py-5 flex justify-between items-center shadow-lg transition-all duration-300">
         <div class="flex items-center gap-4 cursor-pointer group" onclick="showPage('landing')">
-            <div class="w-12 h-12 bg-amber-500 rounded-2xl flex items-center justify-center text-slate-950 shadow-xl font-black text-2xl group-hover:rotate-12 transition-transform">ك</div>
-            <div class="hidden sm:block">
-                <span class="text-2xl font-black text-slate-950 block leading-none tracking-tighter uppercase">Kunuz <span class="text-amber-600 italic">Global</span></span>
-                <span class="text-[9px] text-slate-400 font-black uppercase tracking-[0.3em] mt-1 italic">The Sovereign Asset Network</span>
+            <div class="w-12 h-12 bg-amber-500 rounded-2xl flex items-center justify-center text-slate-950 font-black text-2xl shadow-xl transition-transform group-hover:rotate-12">ك</div>
+            <div class="hidden sm:block leading-none">
+                <span class="text-2xl font-black text-slate-950 block tracking-tighter uppercase italic">كنوز <span class="text-amber-600">للمؤسسات</span></span>
+                <span class="text-[9px] text-slate-400 font-black uppercase tracking-[0.4em] mt-1 italic">نظام ذكاء الأصول العالمي</span>
             </div>
         </div>
         
-        <div class="hidden lg:flex items-center gap-10 text-slate-600 font-black text-[11px] uppercase tracking-widest">
-            <button onclick="showPage('landing')" class="hover:text-amber-500 transition-colors relative group">الرئيسية <span class="absolute -bottom-1 left-0 w-0 h-0.5 bg-amber-500 group-hover:w-full transition-all"></span></button>
-            <button id="nav-ent-btn" onclick="showPage('ent-dash')" class="flex items-center gap-2 hover:text-amber-500 transition-colors"><i data-lucide="rocket" class="w-4 h-4"></i> الرائد</button>
-            <button id="nav-inv-btn" onclick="showPage('inv-dash')" class="hidden items-center gap-2 text-green-600"><i data-lucide="trending-up" class="w-4 h-4"></i> المستثمر</button>
-            <button id="nav-adm-btn" onclick="showPage('dashboard')" class="hidden items-center gap-2 text-blue-600"><i data-lucide="bar-chart-3" class="w-4 h-4"></i> Strategy BI</button>
-            <button id="nav-msg-btn" onclick="showPage('messages')" class="hidden items-center gap-2 text-slate-500"><i data-lucide="mail" class="w-4 h-4"></i> الرسائل</button>
+        <!-- الروابط الأساسية -->
+        <div class="hidden lg:flex items-center gap-10 text-slate-600 font-black text-[11px] uppercase tracking-widest italic">
+            <button onclick="showPage('landing')" class="hover:text-amber-500 transition-colors">الرئيسية</button>
+            <button onclick="showPage('ent-dash')" class="hover:text-amber-500 transition-colors flex items-center gap-2"><i data-lucide="rocket" class="w-3 h-3"></i> لوحة الرائد</button>
+            <button id="nav-inv-btn" onclick="showPage('inv-dash')" class="hidden text-green-600 items-center gap-2"><i data-lucide="trending-up" class="w-3 h-3"></i> لوحة المستثمر</button>
+            <button id="nav-adm-btn" onclick="showPage('dashboard')" class="hidden text-blue-600 items-center gap-2"><i data-lucide="bar-chart-3" class="w-3 h-3"></i> Strategy BI</button>
+            <button id="nav-msg-btn" onclick="showPage('messages')" class="hidden text-slate-400 items-center gap-2"><i data-lucide="mail" class="w-3 h-3"></i> مركز الرسائل</button>
         </div>
 
-        <div class="flex items-center gap-6">
-            <div id="role-switcher" class="bg-slate-100 p-1.5 rounded-full flex gap-1.5 border">
-                <button onclick="setRole('user')" id="role-user-btn" class="px-5 py-2 rounded-full text-[10px] font-black transition-all bg-white shadow-md text-slate-900 border">رائد</button>
-                <button onclick="setRole('investor')" id="role-inv-btn" class="px-5 py-2 rounded-full text-[10px] font-black transition-all text-slate-400">مستثمر</button>
-                <button onclick="setRole('admin')" id="role-adm-btn" class="px-5 py-2 rounded-full text-[10px] font-black transition-all text-slate-400">إدارة</button>
+        <div class="flex items-center gap-5">
+            <!-- مبدل الأدوار -->
+            <div id="role-switcher" class="bg-slate-100 p-1.5 rounded-full flex gap-1 border shadow-inner">
+                <button onclick="setRole('user')" id="role-user-btn" class="px-5 py-2 rounded-full text-[9px] font-black transition-all bg-white shadow-md text-slate-900 border">رائد أعمال</button>
+                <button onclick="setRole('investor')" id="role-inv-btn" class="px-5 py-2 rounded-full text-[9px] font-black transition-all text-slate-400">مستثمر</button>
+                <button onclick="setRole('admin')" id="role-adm-btn" class="px-5 py-2 rounded-full text-[9px] font-black transition-all text-slate-400">إدارة</button>
             </div>
+            
+            <button class="lg:hidden p-3 bg-slate-100 rounded-2xl text-slate-950 shadow-sm" onclick="toggleMobileMenu()"><i data-lucide="menu" class="w-6 h-6"></i></button>
         </div>
     </nav>
 
-    <!-- Global Main Content -->
+    <!-- قائمة الجوال -->
+    <div id="mobile-menu" class="fixed inset-0 bg-slate-950/98 z-[1500] hidden flex-col items-center justify-center text-white gap-10 font-black text-2xl italic uppercase tracking-tighter backdrop-blur-3xl">
+        <button onclick="toggleMobileMenu()" class="absolute top-10 right-10 p-4 bg-white/10 rounded-full"><i data-lucide="x" class="w-10 h-10"></i></button>
+        <button onclick="showPage('landing'); toggleMobileMenu()">الرئيسية</button>
+        <button onclick="showPage('ent-dash'); toggleMobileMenu()">لوحة الرائد</button>
+        <button id="mob-inv-btn" class="hidden text-green-500" onclick="showPage('inv-dash'); toggleMobileMenu()">لوحة المستثمر</button>
+        <button id="mob-adm-btn" class="hidden text-blue-500" onclick="showPage('dashboard'); toggleMobileMenu()">Strategy BI Terminal</button>
+    </div>
+
     <main class="mt-[92px]">
         
-        <!-- SECTION: LANDING PAGE -->
-        <section id="landing-page" class="page-section">
-            <div class="relative py-32 md:py-56 px-8 bg-slate-950 text-white min-h-[95vh] flex items-center overflow-hidden">
-                <!-- Decorative Elements -->
-                <div class="absolute top-0 right-0 w-[500px] h-[500px] bg-amber-500/10 blur-[150px] rounded-full -translate-y-1/2 translate-x-1/2"></div>
-                <div class="absolute bottom-0 left-0 w-[500px] h-[500px] bg-blue-500/10 blur-[150px] rounded-full translate-y-1/2 -translate-x-1/2"></div>
+        <!-- الصفحة الرئيسية -->
+        <section id="landing-page" class="page-section active-section">
+            <div class="relative py-24 lg:py-48 px-8 bg-slate-950 text-white min-h-[90vh] flex items-center overflow-hidden">
+                <div class="absolute top-0 left-0 w-full h-full opacity-20 pointer-events-none">
+                    <div class="absolute top-[-10%] right-[-10%] w-[500px] h-[500px] bg-amber-500/20 blur-[150px] rounded-full"></div>
+                    <div class="absolute bottom-[-10%] left-[-10%] w-[500px] h-[500px] bg-blue-500/20 blur-[150px] rounded-full"></div>
+                </div>
 
-                <div class="container mx-auto relative z-10 grid lg:grid-cols-2 gap-24 items-center">
-                    <div class="text-right">
-                        <span class="inline-block px-6 py-2 rounded-full bg-amber-500/10 border border-amber-500/20 text-amber-500 text-[11px] font-black uppercase tracking-[0.4em] mb-8 italic">World-Class Acquisition Infrastructure</span>
-                        <h1 class="text-6xl md:text-9xl font-black mb-10 leading-[0.8] tracking-tighter italic">أصولك <br><span class="text-amber-500">استراتيجية</span> رقمية</h1>
-                        <p class="text-slate-400 text-xl mb-16 max-w-xl font-light leading-relaxed">منصة "كنوز" تدمج تحليلات ذكاء الأعمال الاستراتيجي (BI) مع مصفوفة التشخيص لربط المشاريع العملاقة بكبار المستثمرين العالميين.</p>
-                        <div class="flex flex-wrap gap-6">
-                            <button onclick="showPage('form')" class="bg-amber-500 text-slate-950 px-14 py-6 rounded-3xl font-black shadow-2xl shadow-amber-500/30 hover:scale-105 transition-all text-sm uppercase italic tracking-tighter">ابدأ رحلة التمويل الآن</button>
-                            <button onclick="setRole('admin')" class="bg-white/5 border border-white/10 px-12 py-6 rounded-3xl font-bold backdrop-blur-xl hover:bg-white/10 transition-all text-sm italic">لوحة Strategy BI</button>
+                <div class="container mx-auto grid lg:grid-cols-2 gap-20 items-center relative z-10">
+                    <div class="text-right space-y-10">
+                        <span class="inline-block px-6 py-2 rounded-full bg-amber-500/10 border border-amber-500/20 text-amber-500 text-[11px] font-black uppercase tracking-[0.5em] italic">نظام الاستحواذ السيادي العالمي</span>
+                        <h1 class="text-6xl lg:text-[7.5rem] font-black mb-10 leading-[0.85] tracking-tighter italic">
+                            أصولك <br><span class="text-amber-500">استراتيجية</span> رقمية
+                        </h1>
+                        <p class="text-slate-400 text-xl lg:text-2xl mb-16 max-w-2xl font-light leading-relaxed">
+                            منصة "كنوز" تدمج تحليلات البيانات الضخمة (Strategy BI) مع مصفوفة التشخيص العالمية لربط الأصول العملاقة بكبار المستثمرين السياديين حول العالم.
+                        </p>
+                        <div class="flex flex-wrap gap-6 justify-start">
+                            <button onclick="showPage('form')" class="bg-amber-500 text-slate-950 px-16 py-7 rounded-3xl font-black shadow-3xl shadow-amber-500/30 hover:scale-105 transition-all text-sm uppercase italic tracking-widest">ابدأ رحلة التمويل</button>
+                            <button onclick="setRole('admin')" class="bg-white/5 border border-white/10 px-12 py-7 rounded-3xl font-bold backdrop-blur-2xl hover:bg-white/10 transition-all text-sm italic uppercase">استعرض Strategy BI</button>
                         </div>
                     </div>
                     <div class="hidden lg:block relative">
-                        <div class="glass-card rounded-[5rem] p-16 border border-white/10 shadow-2xl relative overflow-hidden group hover:border-amber-500/30 transition-all duration-700">
-                            <div class="absolute top-0 right-0 w-full h-1 bg-gradient-to-r from-transparent via-amber-500 to-transparent opacity-30"></div>
-                            <h3 class="text-amber-500 font-black text-xs uppercase tracking-[0.5em] mb-12 italic border-b border-white/10 pb-6">Global Intelligence Monitor</h3>
-                            <div class="space-y-12">
-                                <div class="flex justify-between items-end"><p class="text-slate-500 text-[11px] font-black uppercase italic">Investor Match-Rate</p><p class="text-5xl font-black tracking-tighter">96.4%</p></div>
-                                <div class="h-2 w-full bg-white/5 rounded-full overflow-hidden"><div class="h-full bg-amber-500 w-[96%] bar-anim shadow-[0_0_15px_rgba(245,158,11,0.5)]"></div></div>
-                                <div class="flex justify-between items-end"><p class="text-slate-500 text-[11px] font-black uppercase italic">Managed Asset Flow</p><p class="text-5xl font-black tracking-tighter text-blue-400 italic">+$1.4B</p></div>
-                                <div class="h-2 w-full bg-white/5 rounded-full overflow-hidden"><div class="h-full bg-blue-500 w-[84%] bar-anim"></div></div>
+                        <div class="glass-card rounded-[5rem] p-16 border border-white/10 shadow-3xl relative overflow-hidden group">
+                            <h3 class="text-amber-500 font-black text-[12px] uppercase tracking-[0.6em] mb-14 italic">بث البيانات الحية الذكي</h3>
+                            <div class="space-y-14">
+                                <div class="flex justify-between items-end"><p class="text-slate-500 text-[11px] font-black uppercase tracking-widest italic ml-4">معدل مطابقة المستثمرين</p><p class="text-6xl font-black tracking-tighter italic text-white">96.8%</p></div>
+                                <div class="h-2 w-full bg-white/5 rounded-full overflow-hidden"><div class="h-full bg-amber-500 w-[96%] animate-pulse"></div></div>
+                                <div class="flex justify-between items-end"><p class="text-slate-500 text-[11px] font-black uppercase tracking-widest italic">رأس المال المدار</p><p class="text-6xl font-black tracking-tighter text-blue-400 italic">+$2.1B</p></div>
+                                <div class="h-2 w-full bg-white/5 rounded-full overflow-hidden"><div class="h-full bg-blue-500 w-[84%]"></div></div>
                             </div>
                         </div>
                     </div>
                 </div>
             </div>
             
+            <!-- قطاعات الأعمال -->
             <div class="py-32 bg-white px-8">
                 <div class="container mx-auto">
-                    <div class="max-w-3xl mx-auto text-center mb-24">
-                        <h2 class="text-5xl font-black text-slate-900 mb-6 tracking-tighter italic">القطاعات الاستراتيجية المشمولة</h2>
-                        <p class="text-slate-400 font-bold uppercase text-[10px] tracking-[0.6em] italic">Comprehensive Market Coverage: 16 Core Sectors</p>
+                    <div class="text-center mb-24 max-w-3xl mx-auto">
+                        <h2 class="text-5xl lg:text-6xl font-black text-slate-900 mb-8 tracking-tighter italic">القطاعات الاستراتيجية المشمولة</h2>
+                        <p class="text-slate-400 font-bold uppercase text-[11px] tracking-[0.6em] italic">تغطية شاملة للأصول العالمية عالية القيمة</p>
                     </div>
                     <div id="sectors-ref-container" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-10"></div>
                 </div>
             </div>
         </section>
 
-        <!-- SECTION: ENTREPRENEUR DASHBOARD -->
-        <section id="ent-dash-page" class="page-section hidden min-h-screen bg-slate-50 py-24 px-8 text-right">
+        <!-- لوحة تحكم رائد الأعمال -->
+        <section id="ent-dash-page" class="page-section hidden py-24 px-8 text-right bg-slate-50 min-h-screen">
             <div class="container mx-auto max-w-7xl">
                 <header class="mb-20 flex flex-col md:flex-row justify-between items-end gap-10">
                     <div>
-                        <h2 class="text-5xl font-black tracking-tighter italic uppercase tracking-widest leading-none">Growth <span class="text-amber-500 italic">Command</span></h2>
-                        <p class="text-slate-400 text-[11px] font-black mt-4 uppercase tracking-[0.4em] italic">Project Intelligence & Investor Pipeline Control</p>
+                        <h2 class="text-5xl font-black tracking-tighter italic uppercase tracking-widest leading-none">بوابة <span class="text-amber-500">النمو</span></h2>
+                        <p class="text-slate-400 text-[11px] font-black mt-4 uppercase tracking-[0.4em] italic">تتبع تقدم مشروعك ومواءمة المستثمرين لحظياً</p>
                     </div>
-                    <div class="bg-white px-10 py-5 rounded-[2rem] border shadow-2xl flex items-center gap-6">
-                        <div class="w-3 h-3 bg-green-500 rounded-full animate-ping"></div>
-                        <span class="text-xs font-black text-slate-900 italic">الحالة: جاري التفاوض الاستراتيجي مع 3 مستثمرين</span>
+                    <div class="bg-white px-10 py-5 rounded-[2.5rem] border shadow-2xl flex items-center gap-6">
+                        <div class="w-4 h-4 bg-green-500 rounded-full animate-ping"></div>
+                        <span class="text-xs font-black text-slate-900 italic tracking-tighter uppercase">جاري المراجعة الاستراتيجية</span>
                     </div>
                 </header>
 
                 <div class="grid grid-cols-1 lg:grid-cols-3 gap-12 mb-20">
-                    <!-- Progress Card -->
-                    <div class="bg-white p-16 rounded-[4.5rem] shadow-2xl border border-slate-100 flex flex-col items-center justify-center text-center hover-lift transition-all">
+                    <!-- كرت التقدم -->
+                    <div class="bg-white p-16 rounded-[5rem] shadow-3xl border border-slate-100 flex flex-col items-center justify-center text-center hover-lift">
                         <div class="relative w-64 h-64 mb-10">
                             <svg class="w-full h-full" viewBox="0 0 100 100">
                                 <circle class="text-slate-50" stroke-width="6" stroke="currentColor" fill="transparent" r="42" cx="50" cy="50" />
-                                <circle class="text-amber-500 progress-ring" id="ready-progress-ent" stroke-width="8" stroke-dasharray="263.89" stroke-dashoffset="65" stroke-linecap="round" stroke="currentColor" fill="transparent" r="42" cx="50" cy="50" />
+                                <circle class="text-amber-500 progress-ring" id="ready-progress-ent" stroke-width="8" stroke-dasharray="263.8" stroke-dashoffset="65" stroke-linecap="round" stroke="currentColor" fill="transparent" r="42" cx="50" cy="50" />
                             </svg>
                             <div class="absolute inset-0 flex flex-col items-center justify-center">
                                 <span class="text-6xl font-black italic tracking-tighter">75%</span>
-                                <span class="text-[10px] font-black text-slate-400 uppercase mt-2 italic">Ready for Closing</span>
+                                <span class="text-[10px] font-black text-slate-400 uppercase mt-2 italic">معدل الجاهزية</span>
                             </div>
                         </div>
-                        <h4 class="font-black text-slate-900 text-xl mb-4 italic">مشروعك في المنطقة الخضراء</h4>
-                        <p class="text-[10px] font-black text-slate-400 uppercase tracking-widest italic leading-relaxed">بانتظار عرض الاستحواذ النهائي من مجموعة "ثراء"</p>
+                        <h4 class="font-black text-slate-900 text-2xl mb-4 italic">بانتظار توقيع مذكرة التفاهم (MoU)</h4>
+                        <p class="text-[10px] font-bold text-slate-400 uppercase tracking-widest italic">المرحلة الثالثة: تحليل العناية الواجبة</p>
                     </div>
 
-                    <!-- Live Chart -->
-                    <div class="lg:col-span-2 bg-white p-16 rounded-[4.5rem] shadow-2xl border border-slate-100 overflow-hidden hover-lift transition-all">
+                    <!-- الرسم البياني -->
+                    <div class="lg:col-span-2 bg-white p-16 rounded-[5rem] shadow-3xl border border-slate-100 overflow-hidden relative group">
                         <div class="flex justify-between items-center mb-16">
-                            <h4 class="font-black text-2xl italic tracking-tighter">التدفقات المالية والنمو التشغيلي (Quarterly)</h4>
-                            <div class="flex items-center gap-3"><span class="w-3 h-3 bg-amber-500 rounded-full animate-pulse"></span><span class="text-[10px] font-black text-slate-400 uppercase italic">Real-time BI Stream</span></div>
+                            <h4 class="font-black text-3xl italic tracking-tighter">التدفقات المالية والنمو (ربع سنوي)</h4>
+                            <div class="flex items-center gap-4"><span class="w-3 h-3 bg-amber-500 rounded-full animate-pulse"></span><span class="text-[10px] font-black text-slate-400 uppercase italic">BI تزامن حي عبر</span></div>
                         </div>
-                        <div class="h-64 flex items-end gap-4 px-6" id="sales-flow-bars-ent">
-                            <div class="bg-slate-50 w-full rounded-t-3xl h-[35%] hover:bg-amber-100 transition-all cursor-help" title="Q1 Growth"></div>
-                            <div class="bg-slate-50 w-full rounded-t-3xl h-[55%] hover:bg-amber-100 transition-all"></div>
+                        <div class="h-64 flex items-end gap-6 px-10" id="sales-flow-bars-ent">
+                            <div class="bg-slate-50 w-full rounded-t-3xl h-[40%] hover:bg-amber-100 transition-all cursor-help"></div>
+                            <div class="bg-slate-50 w-full rounded-t-3xl h-[60%] hover:bg-amber-100 transition-all"></div>
                             <div class="bg-slate-50 w-full rounded-t-3xl h-[45%] hover:bg-amber-100 transition-all"></div>
-                            <div class="bg-amber-500 w-full rounded-t-3xl h-[90%] shadow-[0_0_30px_rgba(245,158,11,0.3)] animate-pulse"></div>
-                            <div class="bg-slate-50 w-full rounded-t-3xl h-[65%] hover:bg-amber-100 transition-all"></div>
-                            <div class="bg-slate-50 w-full rounded-t-3xl h-[80%] hover:bg-amber-100 transition-all"></div>
+                            <div class="bg-amber-500 w-full rounded-t-3xl h-[95%] shadow-3xl shadow-amber-500/30 animate-pulse"></div>
+                            <div class="bg-slate-50 w-full rounded-t-3xl h-[70%] hover:bg-amber-100 transition-all"></div>
+                            <div class="bg-slate-50 w-full rounded-t-3xl h-[85%] hover:bg-amber-100 transition-all"></div>
                         </div>
-                        <div class="flex justify-between mt-8 px-10 text-[10px] font-black text-slate-400 uppercase italic tracking-[0.2em]">
-                            <span>Jan</span><span>Feb</span><span>Mar</span><span>Apr</span><span>May</span><span>Jun</span>
+                        <div class="mt-12 flex justify-between px-10 text-[11px] font-black text-slate-400 uppercase italic tracking-[0.3em]">
+                            <span>يناير</span><span>فبراير</span><span>مارس</span><span>أبريل</span><span>مايو</span><span>يونيو</span>
                         </div>
                     </div>
                 </div>
 
-                <!-- Stats Grid -->
                 <div class="grid grid-cols-1 md:grid-cols-3 gap-10">
-                    <div class="bg-slate-950 text-white p-12 rounded-[3.5rem] shadow-2xl flex items-center gap-8 hover-lift transition-all">
-                        <div class="w-16 h-16 bg-amber-500 rounded-3xl flex items-center justify-center text-slate-950 shadow-xl shadow-amber-500/20"><i data-lucide="users" class="w-8 h-8"></i></div>
+                    <div class="bg-slate-950 text-white p-12 rounded-[4rem] flex items-center gap-10 shadow-4xl hover-lift">
+                        <div class="w-16 h-16 bg-amber-500 rounded-3xl flex items-center justify-center text-slate-950 shadow-2xl"><i data-lucide="users" class="w-8 h-8"></i></div>
                         <div><p class="text-[10px] text-slate-500 font-black uppercase mb-1 italic">المستثمرون المهتمون</p><p class="text-4xl font-black italic tracking-tighter">18 جهة</p></div>
                     </div>
-                    <div class="bg-white p-12 rounded-[3.5rem] border border-slate-100 flex items-center gap-8 shadow-sm hover-lift transition-all">
+                    <div class="bg-white p-12 rounded-[4rem] border border-slate-100 flex items-center gap-10 shadow-xl hover-lift">
                         <div class="w-16 h-16 bg-green-50 text-green-600 rounded-3xl flex items-center justify-center"><i data-lucide="target" class="w-8 h-8"></i></div>
                         <div><p class="text-[10px] text-slate-400 font-black uppercase mb-1 italic">المواءمة الاستراتيجية</p><p class="text-4xl font-black italic tracking-tighter">94%</p></div>
                     </div>
-                    <div class="bg-white p-12 rounded-[3.5rem] border border-slate-100 flex items-center gap-8 shadow-sm hover-lift transition-all">
-                        <div class="w-16 h-16 bg-blue-50 text-blue-600 rounded-3xl flex items-center justify-center"><i data-lucide="briefcase" class="w-8 h-8"></i></div>
-                        <div><p class="text-[10px] text-slate-400 font-black uppercase mb-1 italic">مرحلة المفاوضة</p><p class="text-3xl font-black italic tracking-tighter">Due Diligence</p></div>
+                    <div class="bg-white p-12 rounded-[4rem] border border-slate-100 flex items-center gap-10 shadow-xl hover-lift">
+                        <div class="w-16 h-16 bg-blue-50 text-blue-600 rounded-3xl flex items-center justify-center"><i data-lucide="award" class="w-8 h-8"></i></div>
+                        <div><p class="text-[10px] text-slate-400 font-black uppercase mb-1 italic">الموعد القادم</p><p class="text-3xl font-black italic tracking-tighter uppercase">مراجعة MoU</p></div>
                     </div>
                 </div>
             </div>
         </section>
 
-        <!-- SECTION: INVESTOR DASHBOARD -->
+        <!-- لوحة تحكم المستثمر -->
         <section id="inv-dash-page" class="page-section hidden min-h-screen admin-theme py-24 px-8 text-right">
             <div class="container mx-auto">
-                <header class="mb-24 flex flex-col md:flex-row justify-between items-end gap-10">
-                    <div>
-                        <h2 class="text-6xl font-black tracking-tighter uppercase italic tracking-widest text-green-500 italic">Investor <span class="text-white">Universe</span></h2>
-                        <p class="text-slate-500 text-[11px] font-black uppercase mt-5 tracking-[0.5em] italic">Hedge Fund & Sovereign Wealth Asset Pipeline</p>
+                <header class="mb-24 flex flex-col lg:flex-row justify-between items-end gap-10">
+                    <div class="space-y-4">
+                        <h2 class="text-6xl font-black tracking-tighter uppercase italic tracking-widest text-green-500 italic">عالم <span class="text-white">المستثمر</span></h2>
+                        <p class="text-slate-500 text-[11px] font-black uppercase tracking-[0.6em] italic">إدارة المحفظة وتدفقات الثروة السيادية</p>
                     </div>
-                    <div class="glass-card p-6 rounded-[2.5rem] border border-white/10 flex gap-16 text-[11px] font-black">
-                        <div><span class="text-slate-500 ml-3 italic">Investment Capacity:</span><span class="text-green-400 text-lg">$450M</span></div>
-                        <div class="border-r border-white/10 pr-16"><span class="text-slate-500 ml-3 italic">Watchlist Value:</span><span class="text-amber-400 text-lg">$1.8B</span></div>
+                    <div class="glass-card p-6 px-10 rounded-[3rem] border border-white/10 flex gap-16 text-[11px] font-black italic">
+                        <div class="text-right"><span class="text-slate-500 block mb-1">إجمالي الأصول المدارة</span><span class="text-green-400 text-3xl font-black tracking-tighter italic">$450.8M</span></div>
+                        <div class="border-r border-white/10 pr-16 text-right"><span class="text-slate-500 block mb-1">أصول تحت المراقبة</span><span class="text-amber-400 text-3xl font-black tracking-tighter italic">14 كيان</span></div>
+                    </div>
+                </header>
+
+                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-10 mb-20 text-right">
+                    <div class="glass-card p-14 rounded-[5rem] border-r-4 border-r-green-500 hover:bg-white/5 transition-all">
+                        <p class="text-[10px] text-slate-500 font-black mb-4 uppercase italic tracking-widest">متوسط العائد السنوي</p>
+                        <h3 class="text-6xl font-black text-green-400 italic tracking-tighter">32.8%</h3>
+                    </div>
+                    <div class="glass-card p-14 rounded-[5rem] border-r-4 border-r-amber-500 hover:bg-white/5 transition-all">
+                        <p class="text-[10px] text-slate-500 font-black mb-4 uppercase italic tracking-widest">فرص الاستحواذ المباشر</p>
+                        <h3 class="text-6xl font-black text-amber-500 italic tracking-tighter">14 صفقة</h3>
+                    </div>
+                    <div class="glass-card p-14 rounded-[5rem] border-r-4 border-r-blue-500 hover:bg-white/5 transition-all">
+                        <p class="text-[10px] text-slate-500 font-black mb-4 uppercase italic tracking-widest">التوزع الجغرافي</p>
+                        <h3 class="text-6xl font-black text-blue-400 italic tracking-tighter">8 مدن</h3>
+                    </div>
+                    <div class="glass-card p-14 rounded-[5rem] border-r-4 border-r-purple-500 hover:bg-white/5 transition-all">
+                        <p class="text-[10px] text-slate-500 font-black mb-4 uppercase italic tracking-widest">مستوى المواءمة</p>
+                        <h3 class="text-6xl font-black text-purple-400 italic tracking-tighter">عالي جداً</h3>
+                    </div>
+                </div>
+
+                <div class="bg-slate-900/40 rounded-[6rem] border border-white/5 p-16 shadow-4xl relative overflow-hidden">
+                    <h4 class="font-black text-3xl mb-16 italic tracking-tighter flex items-center gap-6 italic">
+                        <i data-lucide="sparkles" class="text-green-400 w-10 h-10"></i> الفرص المفلترة بالذكاء الاصطناعي (AI Matching)
+                    </h4>
+                    <div id="investor-match-list" class="space-y-10"></div>
+                </div>
+            </div>
+        </section>
+
+        <!-- لوحة التحكم الإدارية (Strategy BI) -->
+        <section id="dashboard-page" class="page-section hidden min-h-screen admin-theme py-24 px-8 text-right">
+            <div class="container mx-auto">
+                <header class="flex flex-col lg:flex-row justify-between items-start lg:items-end mb-24 gap-12">
+                    <div class="space-y-4">
+                        <h2 class="text-7xl font-black tracking-tighter italic uppercase text-blue-500 italic leading-none">Strategy <span class="text-white italic">BI</span></h2>
+                        <p class="text-slate-500 text-[11px] font-black mt-5 uppercase tracking-[0.6em] italic leading-loose">محطة الاستخبارات السيادية والتحكم في الأصول الضخمة</p>
+                    </div>
+                    <div class="flex flex-wrap gap-6">
+                        <button onclick="window.print()" class="bg-white/5 border border-white/10 px-10 py-5 rounded-3xl text-[10px] font-black uppercase hover:bg-white/10 transition-all italic"><i data-lucide="printer" class="inline w-4 h-4 ml-3"></i> تصدير التقرير</button>
+                        <button onclick="showPage('map')" class="bg-blue-600 px-16 py-5 rounded-3xl font-black text-xs shadow-3xl shadow-blue-600/30 hover:bg-blue-700 transition-all italic tracking-widest uppercase">خارطة التدفقات</button>
                     </div>
                 </header>
 
                 <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-10 mb-20">
-                    <div class="glass-card p-14 rounded-[4rem] border-r-4 border-r-green-500 hover:bg-white/5 transition-all">
-                        <p class="text-[10px] text-slate-500 font-black mb-4 uppercase italic">AVG Annual ROI</p>
-                        <h3 class="text-6xl font-black text-green-400 italic tracking-tighter">32.8%</h3>
-                    </div>
-                    <div class="glass-card p-14 rounded-[4rem] border-r-4 border-r-amber-500 hover:bg-white/5 transition-all">
-                        <p class="text-[10px] text-slate-500 font-black mb-4 uppercase italic">Live Deal Flow</p>
-                        <h3 class="text-6xl font-black text-amber-500 italic tracking-tighter">14 Deals</h3>
-                    </div>
-                    <div class="glass-card p-14 rounded-[4rem] border-r-4 border-r-blue-500 hover:bg-white/5 transition-all">
-                        <p class="text-[10px] text-slate-500 font-black mb-4 uppercase italic">Portfolio AUM</p>
-                        <h3 class="text-6xl font-black text-blue-400 italic tracking-tighter">$124M</h3>
-                    </div>
-                    <div class="glass-card p-14 rounded-[4rem] border-r-4 border-r-purple-500 hover:bg-white/5 transition-all">
-                        <p class="text-[10px] text-slate-500 font-black mb-4 uppercase italic">Efficiency Index</p>
-                        <h3 class="text-6xl font-black text-purple-400 italic tracking-tighter">Prime</h3>
-                    </div>
-                </div>
-
-                <div class="bg-slate-900/50 rounded-[5rem] border border-white/5 p-16 shadow-3xl relative overflow-hidden">
-                    <div class="absolute -top-32 -left-32 w-80 h-80 bg-green-500/10 blur-[120px] rounded-full"></div>
-                    <h4 class="font-black text-3xl mb-16 italic tracking-tighter border-b border-white/5 pb-10 flex items-center gap-5">
-                        <i data-lucide="sparkles" class="text-green-400"></i> الفرص المفلترة بالذكاء الاصطناعي (AI Matching)
-                    </h4>
-                    <div id="investor-match-list" class="space-y-8"></div>
-                </div>
-            </div>
-        </section>
-
-        <!-- SECTION: ADMIN STRATEGY BI (BIG DATA) -->
-        <section id="dashboard-page" class="page-section hidden min-h-screen admin-theme py-24 px-8 text-right">
-            <div class="container mx-auto">
-                <header class="flex flex-col md:flex-row justify-between items-start md:items-end mb-24 gap-12">
-                    <div>
-                        <h2 class="text-7xl font-black tracking-tighter italic uppercase text-blue-500 italic leading-none">Strategy <span class="text-white italic">BI</span></h2>
-                        <p class="text-slate-500 text-[11px] font-black mt-5 uppercase tracking-[0.5em] italic leading-loose">The Ultimate Business Intelligence & Massive Asset Control Center</p>
-                    </div>
-                    <div class="flex flex-wrap gap-5">
-                        <button onclick="window.print()" class="bg-white/5 border border-white/10 px-10 py-5 rounded-3xl text-[10px] font-black uppercase hover:bg-white/10 transition-all italic"><i data-lucide="printer" class="inline w-4 h-4 ml-3"></i> Export Full Report</button>
-                        <button onclick="showPage('map')" class="bg-blue-600 px-14 py-5 rounded-3xl font-black text-xs shadow-2xl shadow-blue-600/30 hover:bg-blue-700 transition-all italic tracking-widest uppercase">Geospatial Mapping</button>
-                    </div>
-                </header>
-
-                <!-- Top Stats Grid -->
-                <div class="grid grid-cols-1 md:grid-cols-4 gap-10 mb-20">
                     <div class="glass-card p-12 rounded-[4rem] border-t-4 border-t-blue-500 relative overflow-hidden">
-                        <div class="absolute -right-5 -bottom-5 opacity-5 rotate-12"><i data-lucide="activity" class="w-32 h-32"></i></div>
-                        <p class="text-[10px] text-slate-500 font-black mb-4 uppercase italic">إجمالي الفرص النشطة</p>
+                        <p class="text-[10px] text-slate-500 font-black mb-4 uppercase italic tracking-widest">الفرص النشطة</p>
                         <h3 id="stat-total" class="text-6xl font-black italic tracking-tighter text-white">0</h3>
                     </div>
-                    <div class="glass-card p-12 rounded-[4rem] border-t-4 border-t-green-500 relative overflow-hidden">
-                        <div class="absolute -right-5 -bottom-5 opacity-5 rotate-12"><i data-lucide="dollar-sign" class="w-32 h-32"></i></div>
-                        <p class="text-[10px] text-slate-500 font-black mb-4 uppercase italic">حجم السيولة المستهدفة</p>
+                    <div class="glass-card p-12 rounded-[4rem] border-t-4 border-t-green-500">
+                        <p class="text-[10px] text-slate-500 font-black mb-4 uppercase italic tracking-widest">السيولة المستهدفة</p>
                         <h3 id="stat-total-funding" class="text-5xl font-black text-white">$0M</h3>
                     </div>
-                    <div class="glass-card p-12 rounded-[4rem] border-t-4 border-t-amber-500 relative overflow-hidden">
-                        <div class="absolute -right-5 -bottom-5 opacity-5 rotate-12"><i data-lucide="trending-up" class="w-32 h-32"></i></div>
-                        <p class="text-[10px] text-slate-500 font-black mb-4 uppercase italic">متوسط الربحية</p>
+                    <div class="glass-card p-12 rounded-[4rem] border-t-4 border-t-amber-500">
+                        <p class="text-[10px] text-slate-500 font-black mb-4 uppercase italic tracking-widest">متوسط الربحية</p>
                         <h3 id="stat-avg-profit" class="text-6xl font-black italic tracking-tighter text-white">0%</h3>
                     </div>
-                    <div class="glass-card p-12 rounded-[4rem] border-t-4 border-t-purple-500 relative overflow-hidden">
-                        <div class="absolute -right-5 -bottom-5 opacity-5 rotate-12"><i data-lucide="award" class="w-32 h-32"></i></div>
-                        <p class="text-[10px] text-slate-500 font-black mb-4 uppercase italic">كفاءة الفريق</p>
+                    <div class="glass-card p-12 rounded-[4rem] border-t-4 border-t-purple-500">
+                        <p class="text-[10px] text-slate-500 font-black mb-4 uppercase italic tracking-widest">كفاءة الفريق</p>
                         <h3 id="stat-avg-team" class="text-6xl font-black italic tracking-tighter text-white">0/5</h3>
                     </div>
                 </div>
 
-                <!-- Strategic BI Filtering -->
-                <div class="bg-white/5 p-12 rounded-[5rem] border border-white/10 mb-20 backdrop-blur-3xl shadow-2xl relative">
-                    <div class="absolute top-0 right-10 -translate-y-1/2 bg-blue-600 px-6 py-2 rounded-full text-[10px] font-black uppercase italic italic">Active Filter Engine</div>
-                    <div class="grid grid-cols-1 md:grid-cols-4 lg:grid-cols-6 gap-8 items-end text-right text-[11px] font-black italic">
-                        <div class="space-y-3 lg:col-span-2">
-                            <label class="text-slate-400 uppercase tracking-widest ml-3 italic">البحث الاستراتيجي العميق</label>
-                            <input type="text" id="filter-search" oninput="applyFilters()" placeholder="ابحث باسم الكيان أو المدينة..." class="w-full bg-slate-900 border border-white/10 rounded-3xl px-8 py-5 outline-none focus:ring-2 focus:ring-amber-500 transition-all font-bold">
+                <!-- محرك الفلترة الإداري -->
+                <div class="bg-white/5 p-12 rounded-[5rem] border border-white/10 mb-20 backdrop-blur-3xl shadow-4xl relative">
+                    <div class="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-6 gap-8 items-end text-right text-[11px] font-black italic">
+                        <div class="lg:col-span-2 space-y-3">
+                            <label class="text-slate-500 uppercase tracking-widest mr-3">البحث الاستراتيجي العميق</label>
+                            <input type="text" id="filter-search" oninput="applyFilters()" placeholder="ابحث باسم الكيان أو المدينة..." class="w-full bg-slate-900 border border-white/10 rounded-[2rem] px-8 py-5 outline-none focus:ring-2 focus:ring-amber-500 transition-all font-bold text-white">
                         </div>
                         <div class="space-y-3">
-                            <label class="text-slate-400 uppercase tracking-widest ml-3 italic">القطاع</label>
-                            <select id="filter-sector" onchange="applyFilters()" class="w-full bg-slate-900 border border-white/10 rounded-3xl px-6 py-5 outline-none focus:ring-2 focus:ring-amber-500 font-bold"></select>
+                            <label class="text-slate-500 uppercase tracking-widest mr-3">القطاع</label>
+                            <select id="filter-sector" onchange="applyFilters()" class="w-full bg-slate-900 border border-white/10 rounded-[2rem] px-6 py-5 outline-none focus:ring-2 focus:ring-amber-500 text-white font-bold"></select>
                         </div>
                         <div class="space-y-3">
-                            <label class="text-slate-400 uppercase tracking-widest ml-3 italic">المخاطرة</label>
-                            <select id="filter-risk" onchange="applyFilters()" class="w-full bg-slate-900 border border-white/10 rounded-3xl px-6 py-5 outline-none font-bold">
+                            <label class="text-slate-500 uppercase tracking-widest mr-3">المخاطرة</label>
+                            <select id="filter-risk" onchange="applyFilters()" class="w-full bg-slate-900 border border-white/10 rounded-[2rem] px-6 py-5 outline-none focus:ring-2 focus:ring-amber-500 text-white font-bold">
                                 <option value="all">الكل</option>
                                 <option value="Low">Low Risk</option>
                                 <option value="Medium">Medium Risk</option>
@@ -310,21 +387,21 @@
                             </select>
                         </div>
                         <div class="space-y-3">
-                            <label class="text-slate-400 uppercase tracking-widest ml-3 italic">الربحية (+%)</label>
-                            <input type="number" id="filter-profit-val" oninput="applyFilters()" class="w-full bg-slate-900 border border-white/10 rounded-3xl px-6 py-5 outline-none font-bold">
+                            <label class="text-slate-500 uppercase tracking-widest mr-3">الربحية +%</label>
+                            <input type="number" id="filter-profit-val" oninput="applyFilters()" class="w-full bg-slate-900 border border-white/10 rounded-[2rem] px-6 py-5 outline-none focus:ring-2 focus:ring-amber-500 text-white font-bold">
                         </div>
                         <div class="space-y-3">
-                            <label class="text-slate-400 uppercase tracking-widest ml-3 italic">التمويل ($M)</label>
-                            <input type="number" id="filter-funding-val" oninput="applyFilters()" class="w-full bg-slate-900 border border-white/10 rounded-3xl px-6 py-5 outline-none font-bold">
+                            <label class="text-slate-500 uppercase tracking-widest mr-3">التمويل ($M)</label>
+                            <input type="number" id="filter-funding-val" oninput="applyFilters()" class="w-full bg-slate-900 border border-white/10 rounded-[2rem] px-6 py-5 outline-none focus:ring-2 focus:ring-amber-500 text-white font-bold">
                         </div>
                     </div>
                 </div>
 
-                <!-- BI Table System -->
-                <div class="bg-slate-900 rounded-[5rem] border border-white/5 overflow-hidden shadow-3xl relative">
+                <!-- جدول البيانات الإداري (يتحول لبطاقات في الجوال) -->
+                <div class="bg-slate-900 rounded-[6rem] border border-white/5 overflow-hidden shadow-4xl relative">
                     <div class="overflow-x-auto custom-scrollbar">
                         <table class="w-full text-right responsive-table">
-                            <thead class="bg-slate-950/80 text-slate-500 text-[10px] font-black uppercase tracking-[0.3em] italic">
+                            <thead class="bg-slate-950/80 text-slate-500 text-[10px] font-black uppercase tracking-[0.4em] italic">
                                 <tr>
                                     <th class="p-10">الكيان الاستراتيجي</th>
                                     <th class="p-10 text-center">الربحية (%)</th>
@@ -341,123 +418,120 @@
             </div>
         </section>
 
-        <!-- SECTION: MESSAGES CENTER -->
+        <!-- مركز الرسائل والمفاوضات -->
         <section id="messages-page" class="page-section hidden min-h-screen bg-slate-50 py-24 px-8 text-right">
             <div class="container mx-auto max-w-7xl">
                 <header class="mb-16 flex justify-between items-center">
-                    <h2 class="text-4xl font-black italic tracking-tighter uppercase tracking-widest">Negotiation <span class="text-amber-500 italic">Command</span></h2>
-                    <button onclick="showPage('dashboard')" class="text-slate-400 font-bold flex items-center gap-3 italic hover:text-slate-900 transition-all uppercase text-[10px] tracking-widest"><i data-lucide="arrow-left" class="w-5 h-5"></i> Back to BI Terminal</button>
+                    <h2 class="text-5xl font-black italic tracking-tighter uppercase tracking-widest leading-none">Negotiation <span class="text-amber-500">Command</span></h2>
+                    <button onclick="showPage('dashboard')" class="text-slate-400 font-bold flex items-center gap-4 italic hover:text-slate-900 transition-all uppercase text-[10px] tracking-widest">العودة للمنصة <i data-lucide="arrow-left" class="w-5 h-5"></i></button>
                 </header>
-                <div class="grid grid-cols-1 lg:grid-cols-3 gap-10 bg-white rounded-[5rem] border shadow-3xl overflow-hidden min-h-[750px] relative">
-                    <!-- Chat Sidebar -->
-                    <div class="border-l bg-slate-50/50 p-12 space-y-8 overflow-y-auto custom-scrollbar">
-                        <p class="text-[10px] font-black text-slate-400 uppercase tracking-[0.4em] mb-8 italic">غرف العمليات النشطة</p>
+                <div class="grid grid-cols-1 lg:grid-cols-3 gap-10 bg-white rounded-[6rem] border shadow-4xl overflow-hidden min-h-[750px] relative">
+                    <!-- القائمة الجانبية للمحادثات -->
+                    <div class="border-l bg-slate-50/50 p-14 space-y-8 overflow-y-auto custom-scrollbar">
+                        <p class="text-[11px] font-black text-slate-400 uppercase tracking-[0.4em] mb-10 italic">غرف العمليات النشطة</p>
                         <div id="chat-list" class="space-y-6"></div>
                     </div>
-                    <!-- Chat Main -->
+                    <!-- منطقة الدردشة -->
                     <div class="lg:col-span-2 flex flex-col h-full bg-white relative">
-                        <div id="active-chat-header" class="p-12 border-b flex justify-between items-center shrink-0">
+                        <div id="active-chat-header" class="p-14 border-b flex justify-between items-center shrink-0">
                             <div class="flex items-center gap-6">
-                                <div class="w-16 h-16 bg-amber-500 rounded-3xl flex items-center justify-center font-black italic shadow-2xl text-slate-950 text-xl">K</div>
-                                <div><p id="chat-target-name" class="text-lg font-black italic">حدد كيان لبدء التفاوض المباشر</p><p class="text-[10px] text-green-500 font-black italic uppercase mt-1 tracking-widest">• Global System Online</p></div>
+                                <div class="w-16 h-16 bg-amber-500 rounded-3xl flex items-center justify-center font-black italic shadow-2xl text-slate-950 text-2xl">ك</div>
+                                <div><p id="chat-target-name" class="text-xl font-black italic tracking-tighter">حدد كيان لبدء التفاوض المباشر</p><p class="text-[10px] text-green-500 font-black italic uppercase mt-1 tracking-widest">• Online & Encrypted</p></div>
                             </div>
                         </div>
-                        <div id="chat-messages-container" class="grow p-14 overflow-y-auto space-y-10 custom-scrollbar bg-slate-50/20 italic font-bold text-slate-300 text-center flex items-center justify-center text-xl">
-                            يرجى اختيار مشروع من القائمة الجانبية لتفعيل غرفة عمليات التفاوض الحية
+                        <div id="chat-messages-container" class="grow p-14 overflow-y-auto space-y-12 custom-scrollbar bg-slate-50/30 flex flex-col justify-center items-center text-slate-300">
+                            <i data-lucide="mail-open" class="w-20 h-20 mb-6 opacity-20"></i>
+                            <p class="text-2xl font-black italic tracking-tighter opacity-50">يرجى اختيار مشروع لبدء المفاوضة الاستراتيجية</p>
                         </div>
-                        <div class="p-12 border-t flex gap-6 shrink-0 bg-white items-center">
-                            <input type="text" placeholder="اكتب عرضك المالي أو شروط الاستحواذ المقترحة..." class="grow bg-slate-50 border rounded-3xl px-8 py-5 text-sm font-bold outline-none focus:ring-2 focus:ring-amber-500 shadow-inner">
-                            <button class="bg-slate-950 text-white px-10 py-5 rounded-3xl shadow-2xl hover:scale-110 transition-all"><i data-lucide="send" class="w-6 h-6"></i></button>
+                        <div class="p-14 border-t flex gap-8 shrink-0 bg-white items-center">
+                            <input type="text" placeholder="اكتب عرضك المالي أو شروط الاستحواذ..." class="grow bg-slate-50 border border-slate-200 rounded-[2.5rem] px-10 py-6 text-sm font-bold outline-none focus:ring-2 focus:ring-amber-500 shadow-inner">
+                            <button class="bg-slate-950 text-white p-6 px-10 rounded-[2rem] shadow-3xl hover:scale-110 transition-all"><i data-lucide="send" class="w-6 h-6"></i></button>
                         </div>
                     </div>
                 </div>
             </div>
         </section>
 
-        <!-- SECTION: REGISTRATION FORM -->
+        <!-- نموذج تسجيل المشروع (5 خطوات) -->
         <section id="form-page" class="page-section hidden py-24 bg-slate-50 min-h-screen">
             <div class="container mx-auto px-8 max-w-6xl">
-                <!-- Stepper UI -->
-                <div class="flex justify-between mb-24 relative px-12">
+                <!-- شريط الخطوات -->
+                <div class="flex justify-between mb-32 relative px-14">
                     <div class="absolute top-1/2 left-0 w-full h-1 bg-slate-200 -translate-y-1/2 z-0"></div>
-                    <div id="step-line" class="absolute top-1/2 left-0 w-0 h-1 bg-amber-500 -translate-y-1/2 z-0 transition-all duration-700 ease-in-out"></div>
-                    <div class="relative z-10 flex flex-col items-center gap-3"><div class="step-dot w-16 h-16 rounded-full bg-amber-500 text-slate-950 flex items-center justify-center font-black ring-8 ring-white shadow-2xl italic text-xl">1</div><span class="text-[10px] font-black uppercase text-amber-600 italic tracking-widest">ملف الكيان</span></div>
-                    <div class="relative z-10 flex flex-col items-center gap-3"><div class="step-dot w-16 h-16 rounded-full bg-slate-200 text-slate-400 flex items-center justify-center font-black ring-8 ring-white italic text-xl">2</div><span class="text-[10px] font-black uppercase text-slate-400 italic tracking-widest">الفريق والمالية</span></div>
-                    <div class="relative z-10 flex flex-col items-center gap-3"><div class="step-dot w-16 h-16 rounded-full bg-slate-200 text-slate-400 flex items-center justify-center font-black ring-8 ring-white italic text-xl">3</div><span class="text-[10px] font-black uppercase text-slate-400 italic tracking-widest">خطة PMP</span></div>
-                    <div class="relative z-10 flex flex-col items-center gap-3"><div class="step-dot w-16 h-16 rounded-full bg-slate-200 text-slate-400 flex items-center justify-center font-black ring-8 ring-white italic text-xl">4</div><span class="text-[10px] font-black uppercase text-slate-400 italic tracking-widest">مصفوفة التشخيص</span></div>
+                    <div id="step-line" class="absolute top-1/2 right-0 w-0 h-1 bg-amber-500 -translate-y-1/2 z-0 transition-all duration-700 ease-in-out"></div>
+                    
+                    <div class="relative z-10 flex flex-col items-center gap-4"><div class="step-dot w-16 h-16 rounded-full bg-amber-500 text-slate-950 flex items-center justify-center font-black ring-8 ring-white shadow-2xl italic text-2xl">1</div><span class="text-[11px] font-black uppercase text-amber-600 italic tracking-widest">ملف الكيان</span></div>
+                    <div class="relative z-10 flex flex-col items-center gap-4"><div class="step-dot w-16 h-16 rounded-full bg-slate-200 text-slate-400 flex items-center justify-center font-black ring-8 ring-white italic text-2xl">2</div><span class="text-[11px] font-black uppercase text-slate-400 italic tracking-widest">المالية</span></div>
+                    <div class="relative z-10 flex flex-col items-center gap-4"><div class="step-dot w-16 h-16 rounded-full bg-slate-200 text-slate-400 flex items-center justify-center font-black ring-8 ring-white italic text-2xl">3</div><span class="text-[11px] font-black uppercase text-slate-400 italic tracking-widest">الخطة</span></div>
+                    <div class="relative z-10 flex flex-col items-center gap-4"><div class="step-dot w-16 h-16 rounded-full bg-slate-200 text-slate-400 flex items-center justify-center font-black ring-8 ring-white italic text-2xl">4</div><span class="text-[11px] font-black uppercase text-slate-400 italic tracking-widest">التشخيص</span></div>
                 </div>
 
-                <!-- Step 1: Identity -->
-                <div id="form-step-1" class="active-step bg-white rounded-[5rem] p-20 shadow-3xl border text-right relative overflow-hidden">
-                    <div class="absolute top-0 right-0 w-4 h-full bg-amber-500/20"></div>
-                    <h2 class="text-5xl font-black mb-14 tracking-tighter italic border-b pb-8 italic">أولاً: الملف التعريفي والموقع الجيوسياسي</h2>
+                <!-- الخطوة 1 -->
+                <div id="form-step-1" class="active-step bg-white rounded-[6rem] p-20 shadow-4xl border text-right relative overflow-hidden">
+                    <div class="absolute top-0 right-0 w-4 h-full bg-amber-500/10"></div>
+                    <h2 class="text-5xl font-black mb-16 tracking-tighter italic border-b pb-10">أولاً: الملف التعريفي والموقع الجيوسياسي</h2>
                     <div class="grid grid-cols-1 md:grid-cols-2 gap-12">
-                        <div class="space-y-3"><label class="text-[11px] font-black text-slate-500 uppercase italic tracking-[0.3em]">اسم المشروع / الكيان</label><input type="text" id="f-name" class="w-full p-6 bg-slate-50 border rounded-3xl outline-none font-bold text-lg focus:ring-2 focus:ring-amber-500"></div>
-                        <div class="space-y-3"><label class="text-[11px] font-black text-slate-500 uppercase italic tracking-[0.3em]">القطاع الاستراتيجي</label><select id="f-sector" class="w-full p-6 bg-slate-50 border rounded-3xl outline-none font-bold text-lg focus:ring-2 focus:ring-amber-500"></select></div>
-                        <div class="space-y-3"><label class="text-[11px] font-black text-slate-500 uppercase italic tracking-[0.3em]">الدولة</label><input type="text" id="f-country" class="w-full p-6 bg-slate-50 border rounded-3xl outline-none font-bold text-lg focus:ring-2 focus:ring-amber-500"></div>
-                        <div class="space-y-3"><label class="text-[11px] font-black text-slate-500 uppercase italic tracking-[0.3em]">المدينة</label><input type="text" id="f-city" class="w-full p-6 bg-slate-50 border rounded-3xl outline-none font-bold text-lg focus:ring-2 focus:ring-amber-500"></div>
+                        <div class="space-y-4"><label class="text-[11px] font-black text-slate-500 uppercase italic tracking-[0.4em]">اسم المشروع / الكيان</label><input type="text" id="f-name" class="w-full p-7 bg-slate-50 border border-slate-200 rounded-3xl outline-none font-bold text-xl focus:ring-2 focus:ring-amber-500 shadow-inner"></div>
+                        <div class="space-y-4"><label class="text-[11px] font-black text-slate-500 uppercase italic tracking-[0.4em]">القطاع الاستراتيجي</label><select id="f-sector" class="w-full p-7 bg-slate-50 border border-slate-200 rounded-3xl outline-none font-bold text-xl focus:ring-2 focus:ring-amber-500"></select></div>
+                        <div class="space-y-4"><label class="text-[11px] font-black text-slate-500 uppercase italic tracking-[0.4em]">الدولة</label><input type="text" id="f-country" class="w-full p-7 bg-slate-50 border border-slate-200 rounded-3xl outline-none font-bold text-xl focus:ring-2 focus:ring-amber-500"></div>
+                        <div class="space-y-4"><label class="text-[11px] font-black text-slate-500 uppercase italic tracking-[0.4em]">المدينة</label><input type="text" id="f-city" class="w-full p-7 bg-slate-50 border border-slate-200 rounded-3xl outline-none font-bold text-xl focus:ring-2 focus:ring-amber-500"></div>
                     </div>
-                    <div class="flex justify-end mt-20"><button onclick="nextStep(2)" class="bg-slate-950 text-white px-16 py-6 rounded-3xl font-black shadow-3xl hover:scale-105 transition-all text-sm uppercase italic tracking-widest">التالي: التحليل المالي</button></div>
+                    <div class="flex justify-end mt-24"><button onclick="nextStep(2)" class="bg-slate-950 text-white px-20 py-7 rounded-3xl font-black shadow-4xl hover:scale-105 transition-all text-sm uppercase italic tracking-widest">التالي: التحليل المالي</button></div>
                 </div>
 
-                <!-- Step 2: Financials -->
-                <div id="form-step-2" class="hidden bg-white rounded-[5rem] p-20 shadow-3xl border text-right relative overflow-hidden">
-                    <div class="absolute top-0 right-0 w-4 h-full bg-green-500/20"></div>
-                    <h2 class="text-5xl font-black mb-14 tracking-tighter italic border-b pb-8 text-right italic">ثانياً: التحليل المالي وهيكل الفريق المؤسس</h2>
+                <!-- الخطوة 2 -->
+                <div id="form-step-2" class="hidden bg-white rounded-[6rem] p-20 shadow-4xl border text-right relative">
+                    <h2 class="text-5xl font-black mb-16 tracking-tighter italic border-b pb-10">ثانياً: التحليل المالي وكفاءة الفريق</h2>
                     <div class="grid grid-cols-1 md:grid-cols-2 gap-12">
-                        <div class="space-y-3"><label class="text-[11px] font-black text-slate-500 uppercase italic tracking-[0.3em]">صافي الربح المتوقع (%)</label><input type="number" id="f-profit" class="w-full p-6 bg-slate-50 border rounded-3xl outline-none font-bold text-lg focus:ring-2 focus:ring-amber-500"></div>
-                        <div class="space-y-3"><label class="text-[11px] font-black text-slate-500 uppercase italic tracking-[0.3em]">التمويل المطلوب ($)</label><input type="number" id="f-funding" class="w-full p-6 bg-slate-50 border rounded-3xl outline-none font-bold text-lg focus:ring-2 focus:ring-amber-500"></div>
-                        <div class="space-y-3"><label class="text-[11px] font-black text-slate-500 uppercase italic tracking-[0.3em]">النسبة المتاحة للاستثمار (%)</label><input type="number" id="f-ratio" class="w-full p-6 bg-slate-50 border rounded-3xl outline-none font-bold text-lg focus:ring-2 focus:ring-amber-500"></div>
-                        <div class="space-y-3"><label class="text-[11px] font-black text-slate-500 uppercase italic tracking-[0.3em]">تقييم كفاءة الفريق (1-5)</label><input type="number" id="f-team-rating" max="5" min="1" class="w-full p-6 bg-slate-50 border rounded-3xl outline-none font-bold text-lg focus:ring-2 focus:ring-amber-500"></div>
+                        <div class="space-y-4"><label class="text-[11px] font-black text-slate-500 uppercase italic tracking-[0.4em]">صافي الربح المتوقع (%)</label><input type="number" id="f-profit" class="w-full p-7 bg-slate-50 border rounded-3xl outline-none font-bold text-xl shadow-inner"></div>
+                        <div class="space-y-4"><label class="text-[11px] font-black text-slate-500 uppercase italic tracking-[0.4em]">التمويل المطلوب ($)</label><input type="number" id="f-fund" class="w-full p-7 bg-slate-50 border rounded-3xl outline-none font-bold text-xl shadow-inner"></div>
                     </div>
-                    <div class="flex justify-between mt-20"><button onclick="nextStep(1)" class="text-slate-400 font-black px-10 italic uppercase text-[11px] tracking-[0.3em]">العودة للسابق</button><button onclick="nextStep(3)" class="bg-slate-950 text-white px-16 py-6 rounded-3xl font-black shadow-3xl hover:scale-105 transition-all text-sm uppercase italic tracking-widest">التالي: خطة التنفيذ</button></div>
+                    <div class="flex justify-between mt-24"><button onclick="nextStep(1)" class="text-slate-400 font-black px-10 italic uppercase text-[11px] tracking-widest">السابق</button><button onclick="nextStep(3)" class="bg-slate-950 text-white px-20 py-7 rounded-3xl font-black shadow-4xl transition-all">التالي: خطة التنفيذ</button></div>
                 </div>
 
-                <!-- Step 3: PMP Plan -->
-                <div id="form-step-3" class="hidden bg-white rounded-[5rem] p-20 shadow-3xl border text-right relative overflow-hidden">
-                    <div class="absolute top-0 right-0 w-4 h-full bg-blue-500/20"></div>
-                    <h2 class="text-5xl font-black mb-14 tracking-tighter italic border-b pb-8 text-right italic">ثالثاً: خطة التنفيذ والجدول الزمني (PMP)</h2>
-                    <div class="space-y-10 text-right">
-                        <div class="space-y-3"><label class="text-[11px] font-black text-slate-500 uppercase italic tracking-[0.3em]">ملخص خطة إدارة المشروع (Executive Summary)</label><textarea id="f-pmp-plan" class="w-full p-10 bg-slate-50 border rounded-[3rem] outline-none font-bold text-lg h-48 italic leading-relaxed" placeholder="اشرح بالتفصيل كيف سيتم استخدام التدفق المالي لتحقيق الأهداف الاستراتيجية..."></textarea></div>
-                        <div class="grid grid-cols-1 md:grid-cols-2 gap-12">
-                            <div class="space-y-3"><label class="text-[11px] font-black text-slate-500 uppercase italic tracking-[0.3em]">المدة المتوقعة للتنفيذ (أشهر)</label><input type="number" id="f-duration" class="w-full p-6 bg-slate-50 border rounded-3xl outline-none font-bold text-lg focus:ring-2 focus:ring-amber-500"></div>
-                            <div class="space-y-3"><label class="text-[11px] font-black text-slate-500 uppercase italic tracking-[0.3em]">مستوى المخاطرة التشغيلية</label><select id="f-risk" class="w-full p-6 bg-slate-50 border rounded-3xl outline-none font-bold text-lg focus:ring-2 focus:ring-amber-500"><option value="Low">Low Risk</option><option value="Medium">Medium Risk</option><option value="High">High Risk</option></select></div>
-                        </div>
+                <!-- الخطوة 3 (خطة PMP) -->
+                <div id="form-step-3" class="hidden bg-white rounded-[6rem] p-20 shadow-4xl border text-right relative">
+                    <h2 class="text-5xl font-black mb-16 tracking-tighter italic border-b pb-10">ثالثاً: خطة إدارة المشروع (PMP)</h2>
+                    <div class="space-y-8">
+                        <div class="space-y-4"><label class="text-[11px] font-black text-slate-500 uppercase italic tracking-[0.4em]">ملخص خطة العمل الاستراتيجية</label><textarea class="w-full p-8 bg-slate-50 border rounded-[3rem] outline-none font-bold text-lg h-48 focus:ring-2 focus:ring-amber-500" placeholder="اشرح بالتفصيل كيف سيتم استخدام التدفق المالي لتوليد القيمة..."></textarea></div>
                     </div>
-                    <div class="flex justify-between mt-20"><button onclick="nextStep(2)" class="text-slate-400 font-black px-10 italic uppercase text-[11px] tracking-[0.3em]">العودة للسابق</button><button onclick="nextStep(4)" class="bg-slate-950 text-white px-16 py-6 rounded-3xl font-black shadow-3xl hover:scale-105 transition-all text-sm uppercase italic tracking-widest">التالي: التشخيص الاستراتيجي</button></div>
+                    <div class="flex justify-between mt-24"><button onclick="nextStep(2)" class="text-slate-400 font-black px-10 italic uppercase text-[11px] tracking-widest">السابق</button><button onclick="nextStep(4)" class="bg-slate-950 text-white px-20 py-7 rounded-3xl font-black shadow-4xl transition-all">التالي: التشخيص النهائي</button></div>
                 </div>
 
-                <!-- Step 4: Diagnosis Matrix (5/5) -->
-                <div id="form-step-4" class="hidden bg-white rounded-[5rem] p-20 shadow-3xl border text-right relative overflow-hidden">
-                    <div class="absolute top-0 right-0 w-4 h-full bg-purple-500/20"></div>
+                <!-- الخطوة 4 (مصفوفة التشخيص) -->
+                <div id="form-step-4" class="hidden bg-white rounded-[6rem] p-20 shadow-4xl border text-right relative">
                     <h2 class="text-5xl font-black mb-16 tracking-tighter text-center italic uppercase tracking-widest italic">مصفوفة التشخيص الاستراتيجي النهائي (5/5)</h2>
-                    <div id="diagnosis-questions-container" class="space-y-12 mb-16 text-right"></div>
-                    <div class="flex justify-between mt-20 border-t pt-16"><button onclick="nextStep(3)" class="text-slate-400 font-black px-10 italic uppercase text-[11px] tracking-[0.3em]">العودة للسابق</button><button onclick="submitDiagnostics()" class="bg-amber-500 text-slate-950 px-20 py-7 rounded-[2.5rem] font-black shadow-3xl hover:scale-105 transition-all italic text-xl tracking-tighter uppercase italic">إرسال المشروع للتحليل الذكي BI</button></div>
+                    <div id="diagnosis-questions-container" class="space-y-12 mb-20"></div>
+                    <div class="flex justify-between items-center mt-24 border-t pt-16">
+                         <button onclick="nextStep(3)" class="text-slate-400 font-black px-10 italic uppercase text-[11px] tracking-widest">السابق</button>
+                         <button onclick="submitDiagnostics()" class="bg-amber-50 text-slate-950 border-4 border-amber-500 px-24 py-8 rounded-[3rem] font-black shadow-4xl hover:bg-amber-500 transition-all italic text-2xl tracking-tighter uppercase italic">إرسال للتحليل الذكي BI</button>
+                    </div>
                 </div>
             </div>
         </section>
 
-        <!-- SECTION: GEOSPATIAL MAP VIEW -->
+        <!-- صفحة الخريطة الجيومكانية -->
         <section id="map-page" class="page-section hidden py-24 admin-theme text-white min-h-screen px-8">
-            <div class="container mx-auto text-center">
-                <header class="mb-16">
-                    <h2 class="text-6xl font-black text-amber-500 tracking-tighter italic mb-6 uppercase italic tracking-widest">Geospatial Asset Network</h2>
-                    <p class="text-slate-500 font-bold uppercase text-[11px] tracking-[0.6em] italic leading-loose">تتبع التوزيع الجغرافي وحركة الأصول الاستراتيجية المدارة عالمياً</p>
+            <div class="container mx-auto text-center space-y-16">
+                <header>
+                    <h2 class="text-7xl font-black text-amber-500 tracking-tighter italic mb-6 uppercase tracking-widest">Geospatial Asset Map</h2>
+                    <p class="text-slate-500 font-bold uppercase text-[12px] tracking-[0.6em] italic">نظام التتبع الجغرافي وحركة الأصول الاستراتيجية المدارة</p>
                 </header>
-                <div id="project-map" class="shadow-3xl border border-white/5 relative z-10"></div>
+                <div id="project-map" class="shadow-4xl border border-white/5 relative z-10"></div>
             </div>
         </section>
+
     </main>
 
-    <!-- MODAL ARCHITECTURE: ACQUISITION & DECISION VIEW -->
-    <div id="details-modal" class="fixed inset-0 bg-slate-950/98 z-[1000] hidden items-center justify-center p-6 md:p-12 backdrop-blur-3xl overflow-y-auto">
-        <div class="bg-white rounded-[5rem] w-full max-w-7xl overflow-hidden shadow-3xl flex flex-col max-h-[92vh] text-right">
-            <!-- Modal Header -->
+    <!-- نافذة تفاصيل المشروع (Dossier) -->
+    <div id="details-modal" class="fixed inset-0 bg-slate-950/98 z-[10000] hidden items-center justify-center p-8 lg:p-16 backdrop-blur-3xl overflow-y-auto">
+        <div class="bg-white rounded-[6rem] w-full max-w-7xl overflow-hidden shadow-4xl flex flex-col max-h-[95vh] text-right">
+            
             <div id="modal-view-main" class="flex flex-col h-full">
                 <div class="p-14 bg-amber-500 flex justify-between items-center text-slate-950 shrink-0">
                     <div>
-                        <span id="modal-status-badge" class="bg-slate-950 text-white text-[10px] px-5 py-2 rounded-full font-black uppercase mb-4 inline-block italic tracking-widest">Global Asset Active</span>
-                        <h3 id="modal-title" class="text-5xl font-black tracking-tighter italic uppercase tracking-tighter">Strategic Project Portfolio</h3>
+                        <span id="modal-status-badge" class="bg-slate-950 text-white text-[10px] px-6 py-2 rounded-full font-black uppercase mb-4 inline-block italic tracking-widest">تحليل الكيان الاستراتيجي مكتمل</span>
+                        <h3 id="modal-title" class="text-5xl font-black tracking-tighter italic uppercase">ملف المشروع التفصيلي</h3>
                     </div>
                     <button onclick="closeModal()" class="w-20 h-20 bg-slate-950/10 rounded-[3rem] flex items-center justify-center hover:bg-slate-950/20 group transition-all">
                         <i data-lucide="x" class="w-10 h-10 group-hover:rotate-90"></i>
@@ -466,111 +540,101 @@
 
                 <div class="overflow-y-auto p-16 grow space-y-20 custom-scrollbar">
                     <div class="grid grid-cols-1 lg:grid-cols-3 gap-16">
-                        <!-- Left: Info Grid -->
+                        <!-- القسم الأيمن: المؤشرات -->
                         <div class="lg:col-span-2 space-y-16">
-                            <div class="grid grid-cols-2 md:grid-cols-3 gap-8" id="modal-metrics-grid"></div>
-                            <div class="bg-slate-50 p-12 rounded-[4rem] border border-slate-100 shadow-inner">
-                                <h4 class="font-black text-slate-900 text-2xl italic flex items-center gap-4 mb-10"><i data-lucide="file-check" class="text-amber-500"></i> وثائق العناية الواجبة (Due Diligence Docs)</h4>
+                            <div class="grid grid-cols-2 md:grid-cols-3 gap-10" id="modal-metrics-grid"></div>
+                            <div class="bg-slate-50 p-14 rounded-[4rem] border border-slate-100 shadow-inner">
+                                <h4 class="font-black text-slate-900 text-3xl italic flex items-center gap-6 mb-12"><i data-lucide="file-check" class="text-amber-500 w-10 h-10"></i> وثائق العناية الواجبة (Due Diligence)</h4>
                                 <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                                    <div class="p-8 bg-white border rounded-[2.5rem] flex justify-between items-center cursor-pointer hover:border-amber-500 hover:shadow-xl transition-all group">
-                                        <div class="flex items-center gap-5"><i data-lucide="file-bar-chart" class="text-blue-500 w-8 h-8"></i><p class="text-sm font-black italic uppercase">Financial_Report_2024.pdf</p></div>
-                                        <i data-lucide="download" class="w-5 h-5 text-slate-300 group-hover:text-amber-500"></i>
+                                    <div class="p-8 bg-white border rounded-[3rem] flex justify-between items-center cursor-pointer hover:border-amber-500 hover:shadow-2xl transition-all group">
+                                        <div class="flex items-center gap-6"><i data-lucide="file-bar-chart" class="text-blue-500 w-8 h-8"></i><p class="text-sm font-black italic uppercase">تقييم_الأصول_2025.pdf</p></div>
+                                        <i data-lucide="download" class="w-6 h-6 text-slate-300 group-hover:text-amber-500"></i>
                                     </div>
-                                    <div class="p-8 bg-white border rounded-[2.5rem] flex justify-between items-center cursor-pointer hover:border-amber-500 hover:shadow-xl transition-all group">
-                                        <div class="flex items-center gap-5"><i data-lucide="shield-check" class="text-green-500 w-8 h-8"></i><p class="text-sm font-black italic uppercase">Cyber_Security_Audit.pdf</p></div>
-                                        <i data-lucide="download" class="w-5 h-5 text-slate-300 group-hover:text-amber-500"></i>
+                                    <div class="p-8 bg-white border rounded-[3rem] flex justify-between items-center cursor-pointer hover:border-amber-500 hover:shadow-2xl transition-all group">
+                                        <div class="flex items-center gap-6"><i data-lucide="shield-check" class="text-green-500 w-8 h-8"></i><p class="text-sm font-black italic uppercase">سجل_الملكية_الفكرية.pdf</p></div>
+                                        <i data-lucide="download" class="w-6 h-6 text-slate-300 group-hover:text-amber-500"></i>
                                     </div>
                                 </div>
                             </div>
                         </div>
 
-                        <!-- Right: Action Sidebar -->
-                        <div id="admin-actions-sidebar" class="space-y-8 hidden">
-                            <div class="bg-slate-950 text-white p-14 rounded-[4.5rem] border border-white/5 space-y-10 shadow-3xl sticky top-0">
-                                <h4 class="text-amber-500 font-black text-xs uppercase tracking-[0.4em] italic border-b border-white/10 pb-8">قرار الإدارة الاستراتيجي</h4>
-                                <div class="grid grid-cols-2 gap-5">
-                                    <button onclick="updateStatus('Pinned')" class="p-6 bg-white/5 border border-white/10 rounded-3xl hover:bg-amber-500 hover:text-slate-950 transition-all text-[10px] font-black uppercase italic">تثبيت القرار <i data-lucide="pin" class="w-4 h-4 inline mr-2"></i></button>
-                                    <button onclick="updateStatus('Rejected')" class="p-6 bg-white/5 border border-red-500/30 rounded-3xl text-[10px] font-black uppercase text-red-500 hover:bg-red-500 hover:text-white transition-all italic">رفض المشروع <i data-lucide="x-circle" class="w-4 h-4 inline mr-2"></i></button>
+                        <!-- القسم الأيسر: إجراءات الإدارة -->
+                        <div id="admin-actions-sidebar" class="hidden space-y-10">
+                            <div class="bg-slate-950 text-white p-14 rounded-[5rem] border border-white/5 space-y-12 shadow-4xl sticky top-0">
+                                <h4 class="text-amber-500 font-black text-xs uppercase tracking-[0.5em] italic border-b border-white/10 pb-8 italic">إجراءات الإدارة الاستراتيجية</h4>
+                                <div class="grid grid-cols-2 gap-6">
+                                    <button onclick="updateStatus('Pinned')" class="p-6 bg-white/5 border border-white/10 rounded-3xl hover:bg-amber-500 hover:text-slate-950 transition-all text-[11px] font-black uppercase italic">تثبيت <i data-lucide="pin" class="w-4 h-4 inline mr-2"></i></button>
+                                    <button onclick="updateStatus('Rejected')" class="p-6 bg-white/5 border border-red-500/30 rounded-3xl text-[11px] font-black uppercase text-red-500 hover:bg-red-500 hover:text-white transition-all italic">رفض <i data-lucide="x-circle" class="w-4 h-4 inline mr-2"></i></button>
                                 </div>
                                 <hr class="opacity-5">
-                                <button onclick="showAcquisitionRoom()" class="w-full bg-amber-500 text-slate-950 py-8 rounded-[3rem] font-black shadow-3xl shadow-amber-500/30 hover:scale-105 transition-all italic tracking-tighter text-xl uppercase italic">بدء غرفة عمليات التفاوض <i data-lucide="zap" class="inline w-6 h-6 mr-2"></i></button>
+                                <button onclick="showAcquisitionRoom()" class="w-full bg-amber-500 text-slate-950 py-8 rounded-[3rem] font-black shadow-4xl hover:scale-105 transition-all italic tracking-tighter text-2xl uppercase italic">غرفة العمليات والمفاوضات <i data-lucide="zap" class="inline w-7 h-7 ml-3"></i></button>
                             </div>
                         </div>
                     </div>
                 </div>
             </div>
 
-            <!-- VIEW: ACQUISITION ROOM (WAR ROOM) -->
-            <div id="modal-view-acquisition" class="hidden flex flex-col h-full bg-slate-50">
-                <div class="p-14 bg-slate-950 text-white flex justify-between items-center shrink-0 shadow-2xl">
+            <!-- واجهة غرفة العمليات والمفاوضات -->
+            <div id="modal-view-acquisition" class="hidden flex flex-col h-full bg-slate-100">
+                <div class="p-14 bg-slate-950 text-white flex justify-between items-center shrink-0 shadow-3xl">
                     <div class="flex items-center gap-10">
                         <button onclick="backToMainView()" class="w-16 h-16 bg-white/10 rounded-3xl flex items-center justify-center hover:bg-white/20 transition-all"><i data-lucide="chevron-right" class="w-8 h-8"></i></button>
                         <div>
-                            <h3 class="text-5xl font-black tracking-tighter italic uppercase text-amber-500 italic">Acquisition <span class="text-white italic">War-Room</span></h3>
-                            <p id="acq-subtitle" class="text-slate-500 text-[11px] font-black uppercase mt-2 tracking-[0.3em] italic">نظام التفاوض الاستراتيجي وإغلاق الصفقات العملاقة</p>
+                            <h3 class="text-5xl font-black tracking-tighter italic uppercase text-amber-500 italic">Asset <span class="text-white">War-Room</span></h3>
+                            <p class="text-slate-500 text-[11px] font-black uppercase mt-3 tracking-[0.3em] italic">نظام التفاوض المشفر والمؤمن بالكامل V2.4</p>
                         </div>
                     </div>
                 </div>
 
-                <!-- Path Selection Step -->
-                <div id="acq-path-selection" class="p-20 grow flex flex-col justify-center items-center gap-16 overflow-y-auto custom-scrollbar">
-                    <div class="text-center space-y-4 mb-8">
-                        <h4 class="text-3xl font-black italic tracking-tighter">اختر مسار الاستحواذ الاستراتيجي</h4>
-                        <p class="text-slate-400 font-bold uppercase text-[10px] tracking-widest">Select the acquisition vector to proceed</p>
-                    </div>
-                    <div class="grid grid-cols-1 md:grid-cols-3 gap-10 w-full max-w-6xl text-center">
-                        <div onclick="activatePath('شراء كامل Direct Buyout')" class="p-16 bg-white rounded-[5rem] border-4 border-transparent cursor-pointer hover:border-amber-500 shadow-2xl group transition-all duration-500">
-                            <div class="w-24 h-24 bg-blue-50 text-blue-600 rounded-[2.5rem] flex items-center justify-center mx-auto mb-10 group-hover:scale-125 transition-transform shadow-xl"><i data-lucide="landmark" class="w-12 h-12"></i></div>
-                            <h4 class="font-black text-2xl italic uppercase italic tracking-tighter">الاستحواذ الكلي المباشر</h4>
-                            <p class="text-[9px] text-slate-400 mt-4 uppercase font-bold">100% Asset Equity Purchase</p>
+                <!-- اختيار مسار الاستحواذ -->
+                <div id="acq-path-selection" class="p-20 grow flex flex-col justify-center items-center gap-20 overflow-y-auto">
+                    <h4 class="text-4xl font-black italic tracking-tighter">اختر مسار الاستحواذ الاستراتيجي لهذا الكيان</h4>
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-12 w-full max-w-6xl text-center">
+                        <div onclick="activatePath('الاستحواذ الكلي المباشر')" class="p-16 bg-white rounded-[5rem] border-4 border-transparent cursor-pointer hover:border-amber-500 shadow-4xl group transition-all duration-500">
+                            <div class="w-24 h-24 bg-blue-50 text-blue-600 rounded-[2.5rem] flex items-center justify-center mx-auto mb-10 group-hover:scale-125 transition-transform"><i data-lucide="landmark" class="w-12 h-12"></i></div>
+                            <h4 class="font-black text-2xl italic uppercase">الاستحواذ الكلي</h4>
+                            <p class="text-[10px] text-slate-400 mt-4 uppercase font-bold italic">شراء كامل حصص الكيان (100%)</p>
                         </div>
-                        <div onclick="activatePath('شراكة أسهم Equity Partnership')" class="p-16 bg-white rounded-[5rem] border-4 border-transparent cursor-pointer hover:border-amber-500 shadow-2xl group transition-all duration-500">
-                            <div class="w-24 h-24 bg-amber-50 text-amber-600 rounded-[2.5rem] flex items-center justify-center mx-auto mb-10 group-hover:scale-125 transition-transform shadow-xl"><i data-lucide="users" class="w-12 h-12"></i></div>
-                            <h4 class="font-black text-2xl italic uppercase italic tracking-tighter">شراكة أسهم استراتيجية</h4>
-                            <p class="text-[9px] text-slate-400 mt-4 uppercase font-bold">Partial Share Acquisition</p>
+                        <div onclick="activatePath('شراكة أسهم استراتيجية')" class="p-16 bg-white rounded-[5rem] border-4 border-transparent cursor-pointer hover:border-amber-500 shadow-4xl group transition-all duration-500">
+                            <div class="w-24 h-24 bg-amber-50 text-amber-600 rounded-[2.5rem] flex items-center justify-center mx-auto mb-10 group-hover:scale-125 transition-transform"><i data-lucide="users" class="w-12 h-12"></i></div>
+                            <h4 class="font-black text-2xl italic uppercase">شراكة استراتيجية</h4>
+                            <p class="text-[10px] text-slate-400 mt-4 uppercase font-bold italic">استحواذ جزئي وضخ رأس مال للنمو</p>
                         </div>
-                        <div onclick="activatePath('وساطة ومطابقة Matchmaking')" class="p-16 bg-white rounded-[5rem] border-4 border-transparent cursor-pointer hover:border-amber-500 shadow-2xl group transition-all duration-500">
-                            <div class="w-24 h-24 bg-green-50 text-green-600 rounded-[2.5rem] flex items-center justify-center mx-auto mb-10 group-hover:scale-125 transition-transform shadow-xl"><i data-lucide="target" class="w-12 h-12"></i></div>
-                            <h4 class="font-black text-2xl italic uppercase italic tracking-tighter">وساطة ومطابقة استثمارية</h4>
-                            <p class="text-[9px] text-slate-400 mt-4 uppercase font-bold">Strategic Investor Matching</p>
+                        <div onclick="activatePath('وساطة ومطابقة سيادية')" class="p-16 bg-white rounded-[5rem] border-4 border-transparent cursor-pointer hover:border-amber-500 shadow-4xl group transition-all duration-500">
+                            <div class="w-24 h-24 bg-green-50 text-green-600 rounded-[2.5rem] flex items-center justify-center mx-auto mb-10 group-hover:scale-125 transition-transform"><i data-lucide="target" class="w-12 h-12"></i></div>
+                            <h4 class="font-black text-2xl italic uppercase">وساطة ومطابقة</h4>
+                            <p class="text-[10px] text-slate-400 mt-4 uppercase font-bold italic">الربط مع صناديق ثروة سيادية محددة</p>
                         </div>
                     </div>
                 </div>
 
-                <!-- Active Chat Room Step -->
-                <div id="acq-active-room" class="hidden p-14 grow overflow-hidden flex flex-col lg:flex-row gap-10">
-                    <!-- Negotiation Chat -->
-                    <div class="lg:w-2/3 bg-white rounded-[4.5rem] shadow-3xl flex flex-col overflow-hidden border border-slate-100">
+                <!-- منطقة الدردشة الحية في غرفة العمليات -->
+                <div id="acq-active-room" class="hidden p-14 grow overflow-hidden flex flex-col lg:flex-row gap-12">
+                    <div class="lg:w-2/3 bg-white rounded-[5rem] shadow-4xl flex flex-col overflow-hidden border border-slate-200">
                         <div class="p-10 bg-slate-50 border-b flex items-center justify-between shrink-0">
                             <div class="flex items-center gap-6">
-                                <div class="w-16 h-16 bg-amber-500 rounded-3xl flex items-center justify-center font-black italic shadow-2xl text-slate-950 text-xl">F</div>
-                                <div><p class="text-sm font-black italic">صاحب المشروع (الكيان المؤسس)</p><p class="text-[10px] text-green-500 font-black italic uppercase tracking-[0.2em] mt-1">• Negotiation Active</p></div>
-                            </div>
-                            <div class="flex gap-4">
-                                <button onclick="simulateSend('MoU')" class="p-4 bg-slate-100 rounded-2xl hover:bg-amber-100 transition-all" title="Draft MoU"><i data-lucide="file-text" class="w-5 h-5"></i></button>
-                                <button onclick="simulateSend('Meeting')" class="p-4 bg-slate-100 rounded-2xl hover:bg-blue-100 transition-all" title="Schedule Zoom"><i data-lucide="video" class="w-5 h-5"></i></button>
+                                <div class="w-16 h-16 bg-amber-500 rounded-3xl flex items-center justify-center font-black italic shadow-2xl text-slate-950 text-2xl">أ</div>
+                                <div><p class="text-lg font-black italic">فريق الاستحواذ (الإدارة)</p><p class="text-[10px] text-green-500 font-black italic uppercase mt-1 tracking-widest">• تشفير حي كامل مفعل</p></div>
                             </div>
                         </div>
-                        <div id="chat-messages-live" class="grow p-14 overflow-y-auto space-y-10 custom-scrollbar bg-slate-50/10">
-                            <!-- Messages will be injected here -->
+                        <div id="chat-messages-live" class="grow p-14 overflow-y-auto space-y-10 custom-scrollbar bg-slate-50/20 italic font-bold text-center flex flex-col items-center justify-center text-slate-300 text-xl">
+                            اختر مسار الاستحواذ لبدء بروتوكول التواصل
                         </div>
-                        <div class="p-10 border-t flex gap-6 bg-slate-50/50 items-center">
-                            <input type="text" placeholder="اكتب عرضك المالي، شروط الاستحقاق، أو طلبات الفحص..." class="grow bg-white border rounded-[2rem] px-8 py-6 font-bold text-sm focus:ring-2 focus:ring-amber-500 outline-none shadow-sm">
-                            <button class="bg-slate-950 text-white px-10 py-6 rounded-[2rem] shadow-2xl hover:scale-110 transition-all"><i data-lucide="send" class="w-6 h-6"></i></button>
+                        <div class="p-12 border-t flex gap-8 bg-slate-50 items-center">
+                            <input type="text" placeholder="اكتب عرضك النهائي أو بنود الـ MoU..." class="grow bg-white border border-slate-200 rounded-[2.5rem] px-10 py-6 text-sm font-bold shadow-inner outline-none">
+                            <button class="bg-slate-950 text-white p-6 px-12 rounded-[2rem] shadow-3xl hover:scale-110 transition-all"><i data-lucide="send" class="w-7 h-7"></i></button>
                         </div>
                     </div>
-                    
-                    <!-- Control Sidebar -->
-                    <div class="lg:w-1/3 space-y-8">
-                        <div class="bg-slate-950 text-white p-14 rounded-[4.5rem] shadow-3xl space-y-12 border border-white/5 relative overflow-hidden">
-                            <div class="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-transparent via-green-500 to-transparent"></div>
-                            <h4 class="font-black text-amber-500 text-[11px] uppercase tracking-[0.4em] italic border-b border-white/5 pb-10 italic">أدوات إغلاق الصفقة (Closing Tools)</h4>
+                    <!-- أدوات غرفة العمليات -->
+                    <div class="lg:w-1/3 space-y-10">
+                        <div class="bg-slate-950 text-white p-14 rounded-[5rem] shadow-4xl space-y-12 border border-white/5 relative">
+                            <h4 class="font-black text-amber-500 text-[12px] uppercase tracking-[0.5em] italic border-b border-white/10 pb-10 italic">بروتوكولات غرفة العمليات</h4>
                             <div class="space-y-6">
-                                <button onclick="simulateSend('MoU')" class="w-full bg-white/5 p-6 rounded-3xl text-[10px] font-black flex justify-between items-center hover:bg-white/10 transition-all uppercase italic tracking-widest italic">إصدار مذكرة تفاهم MoU <i data-lucide="scroll"></i></button>
-                                <button onclick="simulateSend('Audit')" class="w-full bg-white/5 p-6 rounded-3xl text-[10px] font-black flex justify-between items-center hover:bg-white/10 transition-all uppercase italic tracking-widest italic">بدء الفحص المالي (Audit) <i data-lucide="search"></i></button>
-                                <button onclick="simulateSend('Final')" class="w-full bg-white/5 p-6 rounded-3xl text-[10px] font-black flex justify-between items-center hover:bg-white/10 transition-all uppercase italic tracking-widest italic">توقيع العقد النهائي <i data-lucide="pen-tool"></i></button>
-                                <hr class="opacity-5 my-6">
-                                <button onclick="updateStatus('Acquired')" class="w-full bg-amber-500 text-slate-950 p-8 rounded-[2.5rem] font-black text-xs shadow-3xl italic tracking-tighter uppercase mt-10 italic">إتمام الاستحواذ بنجاح ✅</button>
+                                <button onclick="simulateSend('مسودة MoU')" class="w-full bg-white/5 p-6 rounded-3xl text-[10px] font-black flex justify-between items-center hover:bg-white/10 transition-all uppercase italic tracking-widest">إصدار مذكرة تفاهم (MoU) <i data-lucide="scroll"></i></button>
+                                <button onclick="simulateSend('طلب تدقيق')" class="w-full bg-white/5 p-6 rounded-3xl text-[10px] font-black flex justify-between items-center hover:bg-white/10 transition-all uppercase italic tracking-widest">طلب تدقيق مالي شامل <i data-lucide="search"></i></button>
+                                <button onclick="simulateSend('العقد النهائي')" class="w-full bg-white/5 p-6 rounded-3xl text-[10px] font-black flex justify-between items-center hover:bg-white/10 transition-all uppercase italic tracking-widest">إصدار عقد الاستحواذ <i data-lucide="pen-tool"></i></button>
+                                <hr class="opacity-10 my-10">
+                                <button onclick="updateStatus('تم الاستحواذ')" class="w-full bg-amber-500 text-slate-950 p-10 rounded-[3rem] font-black text-xs shadow-4xl italic tracking-tighter uppercase italic">إتمام عملية الاستحواذ بنجاح ✅</button>
                             </div>
                         </div>
                     </div>
@@ -579,83 +643,93 @@
         </div>
     </div>
 
+    <!-- المحرك البرمجي الأساسي (JavaScript) -->
     <script>
-        // GLOBAL DATA ENGINE
-        let map, markersGroup, projects = [], currentProjectId = null, userRole = 'user';
+        // 1. المتغيرات العالمية والقاعدة الأساسية
+        let userRole = 'user';
+        let projects = [];
+        let currentProjectId = null;
+        let map, markersGroup;
 
         const SECTORS = [
-            "حلول الذكاء الاصطناعي والأتمتة", "الأمن السيبراني المتطور", "التقنيات المالية (FinTech)", 
-            "الخدمات اللوجستية الذكية", "الطاقة المستدامة والمتجددة", "التقنيات الزراعية (AgTech)", 
-            "تكنولوجيا الرعاية الصحية", "التجارة الرقمية المتقدمة", "الصناعات التحويلية الذكية", 
-            "تكنولوجيا التعليم الرقمي", "الاقتصاد الأخضر وإعادة التدوير", "إدارة الأصول العقارية الرقمية",
-            "السياحة والترفيه الذكي", "الفضاء والأقمار الصناعية", "التطوير البرمجي B2B", "التكنولوجيا الحيوية"
+            "الذكاء الاصطناعي والأتمتة", "الأمن السيبراني المتطور", "التقنيات المالية (FinTech)", "الخدمات اللوجستية الذكية", 
+            "الطاقة المستدامة والمتجددة", "التقنيات الزراعية (AgTech)", "تكنولوجيا الرعاية الصحية", "التجارة الإلكترونية المتقدمة",
+            "تكنولوجيا التعليم الرقمي", "الاقتصاد الأخضر وإعادة التدوير", "العقارات الذكية (PropTech)", "خدمات البرمجيات (SaaS)",
+            "تكنولوجيا الفضاء والطيران", "التقنية الحيوية (Biotech)", "تكنولوجيا الدفاع والأمن", "التصنيع المتقدم (3D)"
         ];
 
         const CITY_COORDS = { 
             "الرياض": [24.71, 46.67], "دبي": [25.20, 55.27], "جدة": [21.48, 39.19], 
-            "القاهرة": [30.04, 31.23], "المنامة": [26.22, 50.58], "الكويت": [29.37, 47.97], 
-            "مسقط": [23.58, 58.40], "الدوحة": [25.28, 51.53] 
+            "القاهرة": [30.04, 31.23], "المنامة": [26.22, 50.58], "الكويت": [29.37, 47.97],
+            "مسقط": [23.58, 58.40], "الدوحة": [25.28, 51.53]
         };
 
         const REALISTIC_COMPANIES = [
-            "سديم للحلول الرقمية", "نماء للتقنيات الزراعية", "شركة مآل المالية", "أفق للخدمات اللوجستية",
-            "روابي للطاقة المتجددة", "ثراء للذكاء الاصطناعي", "درع للأمن السيبراني", "كيان للتجارة الإلكترونية",
-            "بوابة التعليم التفاعلي", "مختبرات الصحة الرقمية", "مجمع التصنيع الذكي", "الواحة للاقتصاد الأخضر",
-            "مدار لتقنيات الفضاء", "بنيان للعقارات الذكية", "سحاب للحلول السحابية", "إمداد للوجستيات"
+            "سديم للحلول السحابية", "نماء للتقنيات الزراعية", "شركة مآل المالية الرقمية", "أفق للخدمات اللوجستية",
+            "روابي للطاقة المستدامة", "ثراء لأبحاث الذكاء الاصطناعي", "درع للأمن السيبراني", "كيان للتجارة الرقمية",
+            "جسور للتعليم التفاعلي", "إيكو-لوب للاقتصاد الأخضر", "مدار لأنظمة الفضاء", "أركان للتقنية العقارية",
+            "إمداد لسلاسل التوريد", "نبراس للتقنية الحيوية", "صمود للأنظمة الدفاعية", "رعاية للأنظمة الصحية",
+            "بيان للبيانات الضخمة", "رواد التكنولوجيا العالمية", "واحة الهيدروجين الأخضر", "بترا لتقنيات التعدين"
         ];
 
         const SMART_QUESTIONS = [
-            { q:1, text: "ما هو المحرك الأساسي للقيمة المضافة (Unique Value) في مشروعك؟", opts: [{v:"A", t:"أصول فيزيائية ملموسة"}, {v:"B", t:"خوارزميات وبرمجيات"}, {v:"C", t:"بيانات ضخمة وملكيات فكرية"}] },
-            { q:2, text: "كيف يتم التعامل مع التوسع الجغرافي (Scalability)؟", opts: [{v:"A", t:"يتطلب فروعاً مادية"}, {v:"B", t:"توسع رقمي تدريجي"}, {v:"C", t:"قابل للتكرار عالمياً فوراً"}] },
+            { q:1, text: "ما هو المحرك الأساسي للقيمة المضافة (Unique Value) في مشروعك؟", opts: [{v:"A", t:"أصول فيزيائية ملموسة"}, {v:"B", t:"خوارزميات وبرمجيات فريدة"}, {v:"C", t:"بيانات ضخمة وملكيات فكرية"}] },
+            { q:2, text: "كيف يتم التعامل مع التوسع الجغرافي (Scalability)؟", opts: [{v:"A", t:"يتطلب فروعاً مادية كثيفة"}, {v:"B", t:"توسع رقمي تدريجي"}, {v:"C", t:"قابل للتكرار عالمياً فوراً"}] },
             { q:3, text: "ما هي درجة الحماية القانونية والبرمجية لكيانك؟", opts: [{v:"A", t:"براءات اختراع قيد التسجيل"}, {v:"B", t:"حقوق ملكية فكرية مسجلة"}, {v:"C", t:"أسرار تجارية وتقنيات حصرية"}] },
-            { q:4, text: "ما مدى الاعتمادية على تقنيات الطرف الثالث (Third Party)؟", opts: [{v:"A", t:"تبعية كاملة لشركات كبرى"}, {v:"B", t:"تبعية جزئية (APIs)"}, {v:"C", t:"سيادة تقنية كاملة"}] },
+            { q:4, text: "ما مدى الاعتمادية على تقنيات الطرف الثالث (Third Party)؟", opts: [{v:"A", t:"تبعية كاملة لشركات كبرى"}, {v:"B", t:"تبعية جزئية (APIs)"}, {v:"C", t:"سيادة تقنية كاملة ومستقلة"}] },
             { q:5, text: "متى تتوقع أن يصل الكيان لنقطة الربحية الكاملة (Breakeven)؟", opts: [{v:"A", t:"أكثر من 24 شهراً"}, {v:"B", t:"خلال 12-18 شهراً"}, {v:"C", t:"أقل من 6 أشهر"}] }
         ];
 
-        // SEEDING ENGINE
+        // 2. توليد البيانات الأولية (30 كيان)
         function seedData() {
             projects = [];
             const cities = Object.keys(CITY_COORDS);
             for(let i=1; i<=30; i++) {
                 const city = cities[i % cities.length];
-                const profit = 15 + Math.floor(Math.random() * 50);
-                const funding = (Math.random() * 50 + 10).toFixed(1);
+                const profit = 15 + Math.floor(Math.random() * 55);
+                const funding = (Math.random() * 50 + 5).toFixed(1);
                 projects.push({
                     id: i, name: REALISTIC_COMPANIES[i % REALISTIC_COMPANIES.length] + " " + (i),
                     sector: SECTORS[i % SECTORS.length], city: city, country: "المملكة العربية السعودية", coords: CITY_COORDS[city],
                     profit: profit, funding: funding, risk: ["Low", "Medium", "High"][i % 3], teamRating: (Math.random()*2+3).toFixed(1),
-                    status: 'Active', alignment: (Math.random()*15+82).toFixed(1)
+                    status: 'نشط', alignment: (Math.random()*15+82).toFixed(1)
                 });
             }
         }
 
-        // INITIALIZATION
+        // 3. تهيئة النظام عند التحميل
         function init() {
             seedData();
-            const sectorRef = document.getElementById('sectors-ref-container');
+            
+            // تعبئة قوائم الاختيار
             const filSector = document.getElementById('filter-sector');
             const fSector = document.getElementById('f-sector');
-            
-            if(filSector) filSector.innerHTML = '<option value="all">كافة القطاعات الاستراتيجية</option>';
+            if(filSector) filSector.innerHTML = '<option value="all">كافة القطاعات</option>';
             SECTORS.forEach(s => {
                 const opt = document.createElement('option'); opt.value = s; opt.textContent = s;
                 if(filSector) filSector.appendChild(opt.cloneNode(true));
                 if(fSector) fSector.appendChild(opt);
-                if(sectorRef) {
-                    const div = document.createElement('div');
-                    div.className = "bg-slate-50 p-12 rounded-[4rem] border group hover:bg-white hover:shadow-3xl transition-all text-right hover-lift";
-                    div.innerHTML = `<h4 class="font-black text-slate-800 mb-4 italic text-xl tracking-tighter">${s}</h4><p class="text-[10px] text-slate-400 font-bold uppercase tracking-widest italic leading-loose">Asset Intelligence Hub</p>`;
-                    sectorRef.appendChild(div);
-                }
             });
 
+            // بناء واجهة مصفوفة التشخيص
             const qContainer = document.getElementById('diagnosis-questions-container');
             if(qContainer) {
                 SMART_QUESTIONS.forEach(item => {
                     const div = document.createElement('div');
                     div.className = "bg-slate-50 p-12 rounded-[4rem] border border-slate-100 shadow-sm";
-                    div.innerHTML = `<p class="font-black text-slate-800 mb-10 italic text-xl border-r-8 border-amber-500 pr-6">${item.text}</p><div class="grid grid-cols-1 md:grid-cols-3 gap-8">${item.opts.map(o => `<label class="flex items-center gap-5 p-6 bg-white rounded-[2rem] border-2 cursor-pointer hover:border-amber-500 hover:bg-amber-50 transition-all font-black text-sm italic shadow-sm"><input type="radio" name="q${item.q}" value="${o.v}" class="w-6 h-6 accent-amber-500"> ${o.t}</label>`).join('')}</div>`;
+                    div.innerHTML = `<p class="font-black text-slate-800 mb-10 italic text-2xl border-r-8 border-amber-500 pr-6">${item.text}</p><div class="grid grid-cols-1 md:grid-cols-3 gap-8">${item.opts.map(o => `<label class="flex items-center gap-6 p-8 bg-white rounded-[2.5rem] border-2 cursor-pointer hover:border-amber-500 hover:bg-amber-50 transition-all font-black text-sm italic shadow-sm"><input type="radio" name="q${item.q}" value="${o.v}" class="w-8 h-8 accent-amber-500"> ${o.t}</label>`).join('')}</div>`;
                     qContainer.appendChild(div);
+                });
+            }
+
+            // بناء قائمة القطاعات في الصفحة الرئيسية
+            const sectorRef = document.getElementById('sectors-ref-container');
+            if(sectorRef) {
+                SECTORS.slice(0, 8).forEach(s => {
+                    const div = document.createElement('div');
+                    div.className = "bg-slate-50 p-12 rounded-[4rem] border group hover:bg-white hover:shadow-4xl transition-all text-right hover-lift";
+                    div.innerHTML = `<h4 class="font-black text-slate-800 mb-4 italic text-2xl tracking-tighter">${s}</h4><p class="text-[11px] text-slate-400 font-bold uppercase tracking-[0.4em] italic leading-loose">تحليل الأصول والبيانات الاستراتيجية</p>`;
+                    sectorRef.appendChild(div);
                 });
             }
 
@@ -666,13 +740,16 @@
             if(typeof lucide !== 'undefined') lucide.createIcons();
         }
 
-        // NAVIGATION ENGINE
+        // 4. نظام التنقل والتحكم بالأدوار
         function showPage(id) {
             document.querySelectorAll('.page-section').forEach(p => p.classList.add('hidden'));
             const el = document.getElementById(`${id}-page`);
-            if(el) el.classList.remove('hidden');
+            if(el) {
+                el.classList.add('active-section'); 
+                el.classList.remove('hidden');
+            }
             if(id === 'form') fillDefaultFormData();
-            if(id === 'map' && map) setTimeout(() => map.invalidateSize(), 300);
+            if(id === 'map' && map) setTimeout(() => map.invalidateSize(), 400);
             window.scrollTo({ top: 0, behavior: 'smooth' });
         }
 
@@ -680,16 +757,27 @@
             userRole = role;
             ['user', 'inv', 'adm'].forEach(r => {
                 const btn = document.getElementById(`role-${r}-btn`);
-                if(btn) btn.className = r === role ? "px-6 py-2.5 rounded-full text-[10px] font-black transition-all bg-white shadow-xl text-slate-900 border" : "px-6 py-2.5 rounded-full text-[10px] font-black transition-all text-slate-400";
+                if(btn) btn.className = r === role ? "px-5 py-2 rounded-full text-[9px] font-black transition-all bg-white shadow-xl text-slate-900 border" : "px-5 py-2 rounded-full text-[9px] font-black transition-all text-slate-400";
             });
+            
             document.getElementById('nav-inv-btn').classList.toggle('hidden', role !== 'investor');
             document.getElementById('nav-adm-btn').classList.toggle('hidden', role !== 'admin');
             document.getElementById('nav-msg-btn').classList.toggle('hidden', role !== 'admin');
-            if(role === 'admin') showPage('dashboard'); else if(role === 'investor') showPage('inv-dash'); else showPage('landing');
-            showNotification(`تم الانتقال لمركز: ${role === 'admin' ? 'Strategy BI' : role === 'investor' ? 'المستثمر' : 'رائد العمل'}`);
+            
+            if(role === 'admin') showPage('dashboard'); 
+            else if(role === 'investor') showPage('inv-dash'); 
+            else showPage('landing');
+            
+            showNotification(`تم تغيير صلاحية الدخول بنجاح`);
         }
 
-        // BI & FILTERING ENGINE
+        function toggleMobileMenu() {
+            const menu = document.getElementById('mobile-menu');
+            menu.classList.toggle('hidden');
+            menu.classList.toggle('flex');
+        }
+
+        // 5. محرك الفلترة والـ BI
         function applyFilters() {
             const search = document.getElementById('filter-search')?.value.toLowerCase() || "";
             const sector = document.getElementById('filter-sector')?.value || "all";
@@ -716,12 +804,12 @@
             if(!tbody) return;
             tbody.innerHTML = data.map(p => `
                 <tr class="hover:bg-white/[0.04] transition-all group">
-                    <td class="p-10" data-label="المشروع"><div><div class="font-black text-slate-100 italic tracking-tighter text-lg">${p.name}</div><div class="text-[10px] text-amber-500 font-black uppercase mt-1 italic tracking-[0.3em]">${p.sector}</div></div></td>
-                    <td class="p-10 text-center font-black text-amber-500 text-2xl italic" data-label="الربحية">${p.profit}%</td>
-                    <td class="p-10 text-center font-black text-slate-300 italic text-xl" data-label="التمويل">$${p.funding}M</td>
-                    <td class="p-10 text-center" data-label="المخاطرة"><span class="px-5 py-2 rounded-full text-[9px] font-black uppercase border ${p.risk==='Low'?'border-green-500 text-green-500':p.risk==='High'?'border-red-500 text-red-500':'border-yellow-500 text-yellow-500'} italic">${p.risk}</span></td>
-                    <td class="p-10 text-center" data-label="الحالة"><span class="text-[10px] font-black px-5 py-2 bg-white/5 rounded-full ${p.status==='Rejected'?'text-red-500':'text-green-500'} uppercase italic italic tracking-widest">${p.status}</span></td>
-                    <td class="p-10 text-center" data-label="الإجراء"><button onclick="viewProject(${p.id})" class="text-amber-500 hover:scale-125 transition-transform bg-white/5 p-4 rounded-2xl"><i data-lucide="microscope" class="w-7 h-7"></i></button></td>
+                    <td class="p-10" data-label="الكيان الاستراتيجي"><div><div class="font-black text-slate-100 italic tracking-tighter text-xl">${p.name}</div><div class="text-[10px] text-amber-500 font-black uppercase mt-1 italic tracking-[0.3em]">${p.sector}</div></div></td>
+                    <td class="p-10 text-center font-black text-amber-500 text-3xl italic" data-label="الربحية">${p.profit}%</td>
+                    <td class="p-10 text-center font-black text-slate-300 italic text-2xl" data-label="التمويل">$${p.funding}M</td>
+                    <td class="p-10 text-center" data-label="المخاطرة"><span class="px-5 py-2 rounded-full text-[9px] font-black uppercase border ${p.risk==='Low'?'border-green-500 text-green-500':'border-amber-500 text-amber-500'} italic">${p.risk}</span></td>
+                    <td class="p-10 text-center" data-label="الحالة"><span class="text-[10px] font-black px-5 py-2 bg-white/5 rounded-full text-green-500 uppercase italic tracking-widest">${p.status}</span></td>
+                    <td class="p-10 text-center" data-label="الإجراء"><button onclick="viewProject(${p.id})" class="bg-white/5 p-5 rounded-3xl text-amber-500 hover:scale-125 transition-transform shadow-xl"><i data-lucide="microscope" class="w-8 h-8"></i></button></td>
                 </tr>
             `).join('');
             lucide.createIcons();
@@ -738,25 +826,26 @@
             if(document.getElementById('stat-avg-team')) document.getElementById('stat-avg-team').textContent = `${team}/5`;
         }
 
+        // 6. عرض الفرص للمستثمرين
         function renderInvestorMatches() {
             const container = document.getElementById('investor-match-list');
             if(!container) return;
-            const matches = projects.sort((a,b) => b.alignment - a.alignment).slice(0, 8);
+            const matches = projects.sort((a,b) => b.alignment - a.alignment).slice(0, 10);
             container.innerHTML = matches.map(p => `
-                <div class="flex flex-col md:flex-row items-center justify-between p-14 glass-card rounded-[5rem] hover:bg-white/10 transition-all gap-10 hover-lift">
+                <div class="flex flex-col lg:flex-row items-center justify-between p-12 glass-card rounded-[5rem] hover:bg-white/10 transition-all gap-10 hover-lift shadow-4xl">
                     <div class="flex items-center gap-12 text-right">
-                        <div class="w-28 h-28 bg-green-500/20 text-green-400 rounded-[3rem] flex items-center justify-center font-black text-4xl shadow-3xl shadow-green-500/10">${p.alignment}%</div>
-                        <div><h4 class="font-black text-3xl italic tracking-tighter">${p.name}</h4><p class="text-[11px] text-slate-500 font-black uppercase italic tracking-[0.3em] mt-3">${p.sector} • ${p.city}</p></div>
+                        <div class="w-28 h-28 bg-green-500/20 text-green-400 rounded-[3rem] flex items-center justify-center font-black text-4xl shadow-4xl shadow-green-500/10">${p.alignment}%</div>
+                        <div><h4 class="font-black text-4xl italic tracking-tighter">${p.name}</h4><p class="text-[11px] text-slate-500 font-black uppercase italic tracking-[0.4em] mt-3">${p.sector} • ${p.city}</p></div>
                     </div>
                     <div class="flex flex-wrap items-center gap-16">
-                        <div class="text-center border-r border-white/10 pr-16"><p class="text-[10px] text-slate-500 font-black mb-2 uppercase italic tracking-widest">Target Capital</p><p class="text-white font-black text-3xl italic tracking-tighter">$${p.funding}M</p></div>
-                        <button onclick="viewProject(${p.id})" class="bg-green-500 text-slate-950 px-12 py-6 rounded-3xl font-black text-sm uppercase shadow-3xl hover:scale-105 transition-all italic tracking-tighter">تحليل الاستحواذ</button>
+                        <div class="text-center border-r border-white/10 pr-16"><p class="text-[10px] text-slate-500 font-black mb-2 uppercase tracking-widest italic">رأس المال المطلوب</p><p class="text-white font-black text-3xl italic tracking-tighter">$${p.funding}M</p></div>
+                        <button onclick="viewProject(${p.id})" class="bg-green-500 text-slate-950 px-14 py-6 rounded-[2.5rem] font-black text-sm uppercase shadow-4xl hover:scale-110 transition-all italic tracking-tighter">تحليل الاستحواذ</button>
                     </div>
                 </div>
             `).join('');
         }
 
-        // MAPS ENGINE
+        // 7. الخرائط الجغرافية
         function initMap() {
             const mapEl = document.getElementById('project-map');
             if(!mapEl || map) return;
@@ -770,57 +859,64 @@
             markersGroup.clearLayers();
             data.forEach(p => {
                 const icon = L.divIcon({ className: 'custom-icon', html: `<div style="background:#f59e0b;width:18px;height:18px;border:3px solid white;border-radius:50%;box-shadow:0 0 15px #f59e0b"></div>`, iconSize: [18, 18] });
-                if(p.coords) L.marker(p.coords, { icon: icon }).addTo(markersGroup).bindPopup(`<div class="text-right font-black text-[12px] italic p-2"><p class="text-amber-500 mb-4 text-lg font-black">${p.name}</p><button onclick="viewProject(${p.id})" class="w-full py-3 bg-amber-500 rounded-xl text-slate-950 font-black uppercase text-[10px] italic">فتح المحلل الاستراتيجي</button></div>`);
+                if(p.coords) L.marker(p.coords, { icon: icon }).addTo(markersGroup).bindPopup(`<div class="text-right font-black italic p-4"><p class="text-amber-500 mb-4 text-xl font-black">${p.name}</p><button onclick="viewProject(${p.id})" class="w-full py-3 bg-amber-500 rounded-xl text-slate-950 font-black uppercase text-[10px] italic">تحليل BI</button></div>`);
             });
         }
 
-        // PROJECT VIEW & WAR ROOM ENGINE
+        // 8. غرف العمليات والمودال (Modal)
         function viewProject(id) {
             currentProjectId = id;
             const p = projects.find(x => x.id == id);
             if(!p) return;
             document.getElementById('modal-title').textContent = p.name;
-            document.getElementById('modal-status-badge').textContent = p.status;
+            document.getElementById('modal-status-badge').textContent = `حالة الكيان: ${p.status}`;
             document.getElementById('modal-metrics-grid').innerHTML = `
-                <div class="bg-slate-50 p-10 rounded-[3rem] border border-slate-100"><span class="text-slate-400 block text-[10px] uppercase font-black italic mb-3 tracking-widest italic">الموقع الجيوسياسي</span><p class="font-black text-slate-900 text-xl">${p.city}, ${p.country}</p></div>
-                <div class="bg-slate-50 p-10 rounded-[3rem] border border-slate-100"><span class="text-slate-400 block text-[10px] uppercase font-black italic mb-3 tracking-widest italic">صافي الربح المتوقع</span><p class="font-black text-amber-600 text-4xl italic">${p.profit}%</p></div>
-                <div class="bg-slate-50 p-10 rounded-[3rem] border border-slate-100"><span class="text-slate-400 block text-[10px] uppercase font-black italic mb-3 tracking-widest italic">التمويل المستهدف</span><p class="font-black text-slate-900 text-3xl italic">$${p.funding}M</p></div>
-                <div class="bg-slate-50 p-10 rounded-[3rem] border border-slate-100"><span class="text-slate-400 block text-[10px] uppercase font-black italic mb-3 tracking-widest italic">المواءمة الاستثمارية</span><p class="font-black text-green-600 text-3xl italic">${p.alignment}%</p></div>
-                <div class="bg-slate-50 p-10 rounded-[3rem] border border-slate-100"><span class="text-slate-400 block text-[10px] uppercase font-black italic mb-3 tracking-widest italic">كفاءة الفريق</span><p class="font-black text-blue-600 text-3xl italic">${p.teamRating}/5</p></div>
-                <div class="bg-slate-50 p-10 rounded-[3rem] border border-slate-100"><span class="text-slate-400 block text-[10px] uppercase font-black italic mb-3 tracking-widest italic">درجة المخاطرة</span><p class="font-black text-slate-900 text-xl italic uppercase">${p.risk}</p></div>
+                <div class="bg-slate-50 p-10 rounded-[3rem] border border-slate-100 shadow-sm"><span class="text-slate-400 block text-[10px] uppercase font-black italic mb-3 tracking-widest">الموقع الجغرافي</span><p class="font-black text-slate-900 text-2xl">${p.city}, ${p.country}</p></div>
+                <div class="bg-slate-50 p-10 rounded-[3rem] border border-slate-100 shadow-sm"><span class="text-slate-400 block text-[10px] uppercase font-black italic mb-3 tracking-widest">الربحية المتوقعة</span><p class="font-black text-amber-600 text-5xl italic">${p.profit}%</p></div>
+                <div class="bg-slate-50 p-10 rounded-[3rem] border border-slate-100 shadow-sm"><span class="text-slate-400 block text-[10px] uppercase font-black italic mb-3 tracking-widest">السيولة المطلوبة</span><p class="font-black text-slate-900 text-4xl italic">$${p.funding}M</p></div>
+                <div class="bg-slate-50 p-10 rounded-[3rem] border border-slate-100 shadow-sm"><span class="text-slate-400 block text-[10px] uppercase font-black italic mb-3 tracking-widest">نسبة المواءمة</span><p class="font-black text-green-600 text-4xl italic">${p.alignment}%</p></div>
+                <div class="bg-slate-50 p-10 rounded-[3rem] border border-slate-100 shadow-sm"><span class="text-slate-400 block text-[10px] uppercase font-black italic mb-3 tracking-widest">نضج الفريق</span><p class="font-black text-blue-600 text-4xl italic">${p.teamRating}/5</p></div>
+                <div class="bg-slate-50 p-10 rounded-[3rem] border border-slate-100 shadow-sm"><span class="text-slate-400 block text-[10px] uppercase font-black italic mb-3 tracking-widest">عامل المخاطرة</span><p class="font-black text-slate-900 text-2xl uppercase italic">${p.risk}</p></div>
             `;
-            if(userRole === 'admin') document.getElementById('admin-actions-sidebar').classList.remove('hidden'); else document.getElementById('admin-actions-sidebar').classList.add('hidden');
+            document.getElementById('admin-actions-sidebar').classList.toggle('hidden', userRole !== 'admin');
             backToMainView();
             document.getElementById('details-modal').classList.remove('hidden');
             document.getElementById('details-modal').classList.add('flex');
             lucide.createIcons();
         }
 
+        function closeModal() { document.getElementById('details-modal').classList.add('hidden'); }
         function showAcquisitionRoom() { document.getElementById('modal-view-main').classList.add('hidden'); document.getElementById('modal-view-acquisition').classList.remove('hidden'); lucide.createIcons(); }
         function backToMainView() { document.getElementById('modal-view-acquisition').classList.add('hidden'); document.getElementById('modal-view-main').classList.remove('hidden'); document.getElementById('acq-path-selection').classList.remove('hidden'); document.getElementById('acq-active-room').classList.add('hidden'); }
         
         function activatePath(path) {
             document.getElementById('acq-path-selection').classList.add('hidden');
             document.getElementById('acq-active-room').classList.remove('hidden');
-            document.getElementById('acq-subtitle').textContent = `Strategy Room Active: ${path}`;
             const msgLive = document.getElementById('chat-messages-live');
-            msgLive.innerHTML = `<div class="flex justify-start"><div class="chat-bubble-received p-8 max-w-[85%] text-sm font-bold shadow-xl bg-white border italic">مرحباً بكم فريق الإدارة. نحن منفتحون جداً لمناقشة خيارات الاستحواذ ضمن مسار [${path}]. لقد قمنا بتحميل ملفات الفحص المالي (Due Diligence) بانتظار عرضكم الأول.</div></div>`;
+            msgLive.innerHTML = `<div class="flex flex-col gap-6 w-full"><div class="flex justify-start"><div class="chat-received p-8 max-w-[85%] text-sm font-bold italic">أهلاً بكم في غرفة العمليات. لقد تم تفعيل مسار [${path}] لهذا الكيان. ننتظر عرضكم المالي الأول لبدء النقاش وتوقيع مسودة الـ MoU.</div></div></div>`;
             lucide.createIcons();
         }
 
-        function updateStatus(status) { const p = projects.find(x => x.id == currentProjectId); if(p) { p.status = status; showNotification(`تحديث الحالة الاستراتيجية: ${status}`); viewProject(currentProjectId); applyFilters(); } }
-        function simulateSend(type) { showNotification(`جاري تنفيذ بروتوكول ${type} استراتيجياً...`); setTimeout(() => showNotification(`تم تنفيذ ${type} بنجاح وإشعار الأطراف ✅`), 2000); }
+        function updateStatus(status) { 
+            const p = projects.find(x => x.id == currentProjectId); 
+            if(p) { p.status = status; showNotification(`تم تحديث الحالة: ${status}`); viewProject(currentProjectId); applyFilters(); } 
+        }
 
-        // MESSAGES ENGINE
+        function simulateSend(type) { 
+            showNotification(`جاري تنفيذ بروتوكول ${type}...`); 
+            setTimeout(() => showNotification(`تم إرسال ${type} بنجاح ✅`), 2000); 
+        }
+
+        // 9. الدردشة ومركز الرسائل
         function renderChatList() {
             const container = document.getElementById('chat-list');
             if(!container) return;
-            container.innerHTML = projects.slice(0, 10).map(p => `
-                <div onclick="openChat(${p.id})" class="p-8 bg-white border rounded-[2.5rem] flex items-center gap-6 cursor-pointer hover:border-amber-500 hover:shadow-2xl transition-all group">
-                    <div class="w-16 h-16 bg-slate-100 rounded-3xl flex items-center justify-center font-black italic text-sm group-hover:bg-amber-500 group-hover:text-slate-950 transition-colors shadow-sm">${p.name[0]}</div>
+            container.innerHTML = projects.slice(0, 12).map(p => `
+                <div onclick="openChat(${p.id})" class="p-8 bg-white border border-slate-100 rounded-[3rem] flex items-center gap-6 cursor-pointer hover:border-amber-500 hover:shadow-2xl transition-all group shadow-sm">
+                    <div class="w-14 h-14 bg-slate-100 rounded-2xl flex items-center justify-center font-black italic text-xs group-hover:bg-amber-500 group-hover:text-slate-950 transition-colors shadow-sm">${p.name[0]}</div>
                     <div class="grow overflow-hidden text-right">
                         <p class="text-sm font-black truncate italic">${p.name}</p>
-                        <p class="text-[9px] text-slate-400 font-bold italic truncate uppercase tracking-widest mt-2 italic">Active Acquisition Channel</p>
+                        <p class="text-[9px] text-slate-400 font-bold italic truncate uppercase tracking-widest mt-2 italic">قناة مفاوضات نشطة</p>
                     </div>
                 </div>
             `).join('');
@@ -830,43 +926,22 @@
             const p = projects.find(x => x.id == id);
             document.getElementById('chat-target-name').textContent = p.name;
             const msgContainer = document.getElementById('chat-messages-container');
-            msgContainer.className = "grow p-14 overflow-y-auto space-y-10 custom-scrollbar bg-slate-50/20";
+            msgContainer.className = "grow p-14 overflow-y-auto space-y-12 custom-scrollbar bg-slate-50/10";
             msgContainer.innerHTML = `
-                <div class="flex justify-start"><div class="chat-bubble-received p-8 max-w-[85%] text-sm font-bold shadow-xl bg-white border italic">تحية طيبة لفريق كنوز. بانتظار ردكم على شروط الاستحواذ المقترحة لكيان [${p.name}] تمهيداً لإصدار مذكرة التفاهم.</div></div>
-                <div class="flex justify-end"><div class="chat-bubble-sent p-8 max-w-[85%] text-sm font-black shadow-3xl italic">تم استلام الرسالة. جاري مراجعة البيانات المالية عبر Strategy BI وسنقوم بالرد خلال ساعات.</div></div>
+                <div class="flex justify-start"><div class="chat-received p-10 max-w-[85%] text-sm font-bold shadow-2xl italic">تحية طيبة لفريق كنوز. نحن بانتظار ردكم على شروط الاستحواذ المقترحة لكيان [${p.name}] تمهيداً لإصدار الـ MoU.</div></div>
+                <div class="flex justify-end"><div class="chat-sent p-10 max-w-[85%] text-sm font-black shadow-4xl italic">تم استلام الرسالة. جاري مراجعة البيانات عبر Strategy BI وسنقوم بالرد خلال ساعات العمل القادمة.</div></div>
             `;
             showPage('messages');
         }
 
-        // FORM ENGINE & AUTO-FILL
+        // 10. النموذج وتعبئة البيانات التلقائية
         function fillDefaultFormData() {
-            const defaults = {
-                name: "سديم للحلول السحابية والذكاء الاصطناعي",
-                sector: "حلول الذكاء الاصطناعي والأتمتة",
-                country: "المملكة العربية السعودية",
-                city: "الرياض",
-                profit: 38,
-                funding: 5500000,
-                ratio: 30,
-                teamRating: 5,
-                pmp: "خطة توسع استراتيجية تهدف لدمج خوارزميات الذكاء الاصطناعي في قطاع اللوجستيات، مع التركيز على تقليل التكاليف التشغيلية بنسبة 40% خلال السنة الأولى من الاستحواذ.",
-                duration: 18,
-                risk: "Low"
-            };
-
-            document.getElementById('f-name').value = defaults.name;
-            document.getElementById('f-sector').value = defaults.sector;
-            document.getElementById('f-country').value = defaults.country;
-            document.getElementById('f-city').value = defaults.city;
-            document.getElementById('f-profit').value = defaults.profit;
-            document.getElementById('f-funding').value = defaults.funding;
-            document.getElementById('f-ratio').value = defaults.ratio;
-            document.getElementById('f-team-rating').value = defaults.teamRating;
-            document.getElementById('f-pmp-plan').value = defaults.pmp;
-            document.getElementById('f-duration').value = defaults.duration;
-            document.getElementById('f-risk').value = defaults.risk;
-            
-            // Auto-select diagnosis questions to "C" (High Quality)
+            document.getElementById('f-name').value = "سديم للحلول السحابية المتقدمة";
+            document.getElementById('f-sector').value = "الذكاء الاصطناعي والأتمتة";
+            document.getElementById('f-country').value = "المملكة العربية السعودية";
+            document.getElementById('f-city').value = "الرياض";
+            document.getElementById('f-profit').value = 45;
+            document.getElementById('f-fund').value = 7500000;
             document.querySelectorAll('input[type="radio"]').forEach((el, i) => { if((i+1)%3 === 0) el.checked = true; });
         }
 
@@ -881,10 +956,10 @@
             document.getElementById('loading-screen').classList.remove('hidden');
             setTimeout(() => {
                 document.getElementById('loading-screen').classList.add('hidden');
-                showNotification("تم إرسال المشروع الاستراتيجي بنجاح. جاري تحليل البيانات عبر محرك BI.");
+                showNotification("تم إرسال مشروعك للتحليل الذكي BI بنجاح");
                 showPage('ent-dash');
                 nextStep(1);
-            }, 2500);
+            }, 3000);
         }
 
         function showNotification(text) { 
@@ -894,8 +969,7 @@
             setTimeout(() => toast.classList.remove('show'), 4500); 
         }
 
-        function closeModal() { document.getElementById('details-modal').classList.add('hidden'); }
-
+        // تشغيل النظام
         window.onload = init;
     </script>
 </body>
